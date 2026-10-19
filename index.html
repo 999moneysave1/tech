@@ -3,25 +3,149 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>L1 & L2 Interview Jobs Questions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interview Questions & Answers Guide</title>
 
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
+        :root {
+            --primary-color: #0d6efd;
+            --accent-stress: #d63384;
+            --text-dark: #212529;
+            --question-color: #dc3545;
+        }
+
         body {
-            background: #f5f7fb;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 12px;
+        }
+
+        .search-wrap {
+            width: 100%;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        #accordionSearch {
+            width: 100% !important;
+            border-radius: 8px;
+            padding: 0.8rem 3rem 0.8rem 1rem;
+            font-size: 1rem;
+            border: 1.5px solid #cbd5e1;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease-in-out;
+        }
+
+        #accordionSearch:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
+            outline: none;
+        }
+
+        .mic-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .mic-btn:hover {
+            background-color: #e2e8f0;
+        }
+
+        .mic-btn.listening svg {
+            fill: #dc3545;
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .accordion-item {
+            border: 1px solid #cbd5e1;
+            margin-bottom: 8px;
+            border-radius: 8px !important;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
         }
 
         .accordion-button {
-            font-weight: 600;
+            font-weight: 700;
+            color: var(--question-color) !important;
+            background-color: #ffffff;
+            padding: 0.9rem 1rem;
+            font-size: 0.98rem;
         }
 
         .accordion-button:not(.collapsed) {
-            background-color: #e9f2ff;
-            color: #0d6efd;
+            color: var(--question-color) !important;
+            background-color: #fff5f5;
+            box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.08);
         }
 
+        .accordion-body {
+            background-color: #ffffff;
+            line-height: 1.65;
+            font-size: 0.95rem;
+            padding: 1rem;
+            color: #212529;
+        }
+
+        .ans-line {
+            padding: 6px 10px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            border-left: 3px solid transparent;
+            transition: all 0.15s ease-in-out;
+            outline: none;
+        }
+
+        .ans-line.active-line {
+            background-color: #e0f2fe;
+            border-left: 3px solid var(--primary-color);
+            font-weight: 500;
+        }
+
+        mark,
+        .search-word-box {
+            background-color: #fef08a;
+            color: #854d0e;
+            padding: 0 2px;
+            border-radius: 2px;
+            font-weight: bold;
+        }
+
+        /* Tech.html Specific Styling Support */
         .issue-link {
             color: #0d6efd;
             cursor: pointer;
@@ -33,21 +157,14 @@
             color: #084298;
         }
 
-        mark {
-            background: yellow;
-            padding: 2px 4px;
-        }
-
         .how-where {
             display: block;
-            /* Ise nayi line par lane ke liye */
             font-size: 0.85rem;
             color: #666;
             background: #fdfdfd;
             border-left: 3px solid #0d6efd;
             padding: 5px 10px;
             margin: 5px 0 15px 20px;
-            /* Alag dikhne ke liye spacing */
             font-style: italic;
         }
 
@@ -57,88 +174,163 @@
             margin-top: 10px;
             color: #333;
         }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 8px;
+            }
+
+            #accordionSearch {
+                padding: 0.7rem 2.8rem 0.7rem 0.85rem;
+                font-size: 0.95rem;
+            }
+
+            .accordion-button {
+                font-size: 0.9rem;
+                padding: 0.8rem;
+            }
+        }
+
+        .teleprompter-mode .ans-line.past-line {
+            display: none;
+        }
+
+        .ans-line.active-line {
+            background-color: #fef08a;
+            border-left: 2px solid var(--primary-color);
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0f172a;
+            text-align: justify !important;
+            text-align-last: center !important;
+        }
+
+        .teleprompter-active .accordion-header {
+            display: none !important;
+        }
+
+        .teleprompter-active .accordion-body {
+            padding-top: 4px !important;
+        }
+
+        #main-wrapper {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            transition: width 0.25s ease-in-out;
+        }
+
+        .view-size-75 {
+            width: 75% !important;
+        }
+
+        .view-size-50 {
+            width: 50% !important;
+        }
+
+        .view-size-25 {
+            width: 25% !important;
+        }
+
+        .view-size-100 {
+            width: 100% !important;
+        }
+
+        .accordion-item.selected-question {
+            border: 2.5px solid #0d6efd !important;
+            box-shadow: 0 0 12px rgba(13, 110, 253, 0.35) !important;
+            border-radius: 8px;
+        }
+
+        kbd {
+            font-family: inherit;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .spoken-word-highlight {
+            border-bottom: 2.5px solid #dc3545 !important;
+            color: #dc3545 !important;
+            font-weight: 700 !important;
+            transition: all 0.15s ease-in-out;
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="container py-5">
-
-        <div class="mb-4">
-            <input type="text" id="accordionSearch" class="form-control form-control-lg"
-                placeholder="Search Interview Questions..." oninput="liveSearchAccordion()" />
-        </div>
-
-        <h2 class="text-center mb-4">
-            Interview Preparation Guide
-        </h2>
-
-        <div class="accordion" id="mainAccordion">
-
-            <div class="accordion-item">
-
-                <h2 class="accordion-header" id="mainHeading1">
-
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#mainCollapse1">
-
-                        Interview Topics & Sample Answers
-
-                    </button>
-
-                </h2>
-
-                <div id="mainCollapse1" class="accordion-collapse collapse show">
-
-                    <div class="accordion-body">
-
-                        <div class="accordion" id="interviewAccordion">
-
-                            <!-- Questions Will Load Here -->
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
+    <div class="d-flex justify-content-between align-items-center mb-2 px-2 pt-2">
+        <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" data-bs-toggle="modal"
+            data-bs-target="#howToUseModal">
+            How to Use (Shortcuts)
+        </button>
+        <!-- <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+            <span class="small fw-semibold text-secondary">Accent Mode</span>
+            <input class="form-check-input m-0" type="checkbox" id="modeToggle" role="switch" onchange="toggleMode()" aria-label="Toggle Stress Mode">
+        </div> -->
     </div>
 
+    <!-- How to Use Modal -->
+    <div class="modal fade" id="howToUseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">🎯 Global Keyboard Commands & Shortcuts Guide</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p>Use Space for global reset, Enter to open selected question, and Arrow keys for teleprompter
+                        navigation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Modal -->
-
+    <!-- Issue Details Modal (From Tech.html) -->
     <div class="modal fade" id="issueModal" tabindex="-1">
-
         <div class="modal-dialog modal-lg">
-
             <div class="modal-content">
-
                 <div class="modal-header">
-
-                    <h5 class="modal-title" id="issueTitle">
-                        Issue Details
-                    </h5>
-
+                    <h5 class="modal-title" id="issueTitle">Issue Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-
                 </div>
-
                 <div class="modal-body" id="issueContent"></div>
-
             </div>
-
         </div>
-
     </div>
 
+    <div id="main-wrapper">
+        <div class="search-wrap px-2">
+            <label for="accordionSearch" class="visually-hidden">Search Questions</label>
+            <input type="search" id="accordionSearch" class="form-control" placeholder="Search interview questions..."
+                oninput="liveSearchAccordion()" aria-label="Search input" />
+            <button type="button" class="mic-btn" id="micBtn" onclick="toggleSpeechRecognition()"
+                title="Speak to search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#64748b">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+                    <path
+                        d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                </svg>
+            </button>
+        </div>
 
+        <main id="main-content" class="px-2">
+            <div class="accordion" id="interviewAccordion">
+                <!-- Questions Injected Dynamically -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap 5 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        const questions = [
+
+
+
+        const normalQuestions = [
             {
                 question: "1. Tell me about yourself or introduce yourself.",
                 answer: `
@@ -903,88 +1095,6 @@ Through these experiences, I developed strong technical troubleshooting, inciden
 
 
         ];
-
-
-
-        const accordion = document.getElementById("interviewAccordion");
-
-        questions.forEach((item, index) => {
-
-            accordion.insertAdjacentHTML("beforeend", `
-
-            <div class="accordion-item">
-
-                <h2 class="accordion-header" id="q${index + 1}">
-
-                    <button class="accordion-button collapsed"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#a${index + 1}">
-
-                        ${item.question}
-
-                    </button>
-
-                </h2>
-
-                <div id="a${index + 1}"
-                    class="accordion-collapse collapse">
-
-                    <div class="accordion-body">
-
-                        ${item.answer}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            `);
-
-        });
-
-
-
-
-        function liveSearchAccordion() {
-
-            const input = document.getElementById("accordionSearch")
-                .value
-                .trim()
-                .toLowerCase();
-
-            const items = document.querySelectorAll(
-                "#interviewAccordion .accordion-item"
-            );
-
-            items.forEach(item => {
-
-                const questionEl =
-                    item.querySelector(".accordion-button");
-
-                const answerEl =
-                    item.querySelector(".accordion-body");
-
-                const questionText =
-                    questionEl.textContent.toLowerCase();
-
-                const answerText =
-                    answerEl.textContent.toLowerCase();
-
-                const match =
-                    questionText.includes(input) ||
-                    answerText.includes(input);
-
-                item.style.display =
-                    match || input === ""
-                        ? ""
-                        : "none";
-
-            });
-
-        }
-
 
         const issueSolutions = {
             vpn: {
@@ -5478,27 +5588,347 @@ Through these experiences, I developed strong technical troubleshooting, inciden
 
 
 
+
+        // 2. showIssue function ko theek karein (issueTitleinnerHTML ki jagah issueTitle karein)
         function showIssue(issueKey) {
+            if (!issueSolutions[issueKey]) return;
 
-            document.getElementById("issueTitle").innerHTML =
-                issueSolutions[issueKey].title;
+            // Yahan ID fix ki gayi hai:
+            document.getElementById("issueTitle").innerHTML = issueSolutions[issueKey].title;
+            document.getElementById("issueContent").innerHTML = issueSolutions[issueKey].content;
 
-            document.getElementById("issueContent").innerHTML =
-                issueSolutions[issueKey].content;
-
-            const modal =
-                new bootstrap.Modal(
-                    document.getElementById("issueModal")
-                );
-
+            const modal = new bootstrap.Modal(document.getElementById("issueModal"));
             modal.show();
-
         }
 
+
+        let isStressMode = false;
+        let recognition = null;
+        let isListening = false;
+        const accordion = document.getElementById("interviewAccordion");
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderAccordion();
+            setupKeyboardNavigation();
+            initSpeechRecognition();
+        });
+
+        // उत्तर को टेलीप्रॉम्प्टर के लिए लाइनों में बांटने का लॉजिक (HTML टैग्स सुरक्षित रखते हुए)
+        function formatAnswerToLines(answerText) {
+            if (!answerText) return "";
+
+            // चूँकि इसमें HTML टैग्स (<br>, <span> आदि) हैं, हम पैराग्राफ्स या ब्लॉक्स में विभाजित करेंगे
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = answerText;
+
+            // textContent या childNodes के आधार पर सेपरेट करना बेहतर है
+            const rawHtmls = answerText.split(/<br\s*[\/]?>|<\/p>/gi);
+            let formattedHtml = "";
+
+            rawHtmls.forEach(part => {
+                const cleanPart = part.trim();
+                if (cleanPart) {
+                    formattedHtml += `<div class="ans-line" tabindex="0">${cleanPart}</div>`;
+                }
+            });
+
+            return formattedHtml;
+        }
+
+        function renderAccordion() {
+            const dataSet = isStressMode ? stressQuestions : normalQuestions;
+            accordion.innerHTML = "";
+
+            dataSet.forEach((item, index) => {
+                const formattedAnswer = formatAnswerToLines(item.answer);
+
+                accordion.insertAdjacentHTML("beforeend", `
+                    <div class="accordion-item" id="item-${index}">
+                        <h2 class="accordion-header" id="q${index + 1}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#a${index + 1}" aria-expanded="false" aria-controls="a${index + 1}">
+                                <span class="q-title" data-original="${encodeURIComponent(item.question)}">${item.question}</span>
+                            </button>
+                        </h2>
+                        <div id="a${index + 1}" class="accordion-collapse collapse" aria-labelledby="q${index + 1}"
+                            data-bs-parent="#interviewAccordion">
+                            <div class="accordion-body">${formattedAnswer}</div>
+                        </div>
+                    </div>
+                `);
+            });
+
+            attachAnswerClickEvents();
+            liveSearchAccordion();
+        }
+
+        function attachAnswerClickEvents() {
+            document.querySelectorAll('.accordion-body').forEach(body => {
+                body.addEventListener('click', (e) => {
+                    const line = e.target.closest('.ans-line');
+                    if (line) {
+                        body.querySelectorAll('.ans-line').forEach(l => l.classList.remove('active-line'));
+                        line.classList.add('active-line');
+                        line.focus();
+                    }
+                });
+            });
+        }
+
+        let selectedQuestionIndex = -1;
+
+        function setContainerSize(sizeClass) {
+            const wrapper = document.getElementById("main-wrapper");
+            if (!wrapper) return;
+            wrapper.classList.remove('view-size-75', 'view-size-50', 'view-size-25', 'view-size-100');
+            wrapper.classList.add(sizeClass);
+        }
+
+        function updateTeleprompterLine(lines, activeIndex) {
+            lines.forEach((line, index) => {
+                line.classList.remove('active-line');
+                if (index < activeIndex) {
+                    line.classList.add('past-line');
+                } else {
+                    line.classList.remove('past-line');
+                }
+            });
+
+            const currentLine = lines[activeIndex];
+            if (!currentLine) return;
+            currentLine.classList.add('active-line');
+
+            const headerOffset = 15;
+            const elementPosition = currentLine.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+        }
+
+        function toggleMode() {
+            const modeToggle = document.getElementById("modeToggle");
+            isStressMode = modeToggle.checked;
+            renderAccordion();
+        }
+
+        function highlightTextInNode(node, query) {
+            if (!query) return;
+            const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const regex = new RegExp(`(${escapedQuery})`, "gi");
+
+            function traverse(curr) {
+                if (curr.nodeType === 3) {
+                    if (curr.nodeValue.toLowerCase().includes(query.toLowerCase())) {
+                        const span = document.createElement('span');
+                        span.innerHTML = curr.nodeValue.replace(regex, '<span class="search-word-box">$1</span>');
+                        curr.parentNode.replaceChild(span, curr);
+                    }
+                } else if (curr.nodeType === 1 && curr.nodeName !== 'SCRIPT' && !curr.classList.contains('search-word-box')) {
+                    Array.from(curr.childNodes).forEach(traverse);
+                }
+            }
+            traverse(node);
+        }
+
+        function liveSearchAccordion() {
+            const searchInput = document.getElementById("accordionSearch");
+            if (!searchInput) return;
+
+            const input = searchInput.value.trim().toLowerCase();
+            const items = Array.from(document.querySelectorAll("#interviewAccordion .accordion-item"));
+
+            if (input === "") {
+                items.forEach((item) => {
+                    const questionEl = item.querySelector(".q-title");
+                    if (questionEl) {
+                        const originalQuestion = decodeURIComponent(questionEl.getAttribute("data-original"));
+                        questionEl.innerHTML = originalQuestion;
+                    }
+                    item.style.display = "block";
+                });
+                return;
+            }
+
+            const keywords = input.split(/\s+/).filter(k => k.length > 0);
+            const scoredItems = items.map((item) => {
+                const questionEl = item.querySelector(".q-title");
+                const originalQuestion = decodeURIComponent(questionEl.getAttribute("data-original"));
+                const cleanQuestion = originalQuestion.toLowerCase();
+
+                let matchCount = 0;
+                keywords.forEach(word => {
+                    if (cleanQuestion.includes(word)) matchCount++;
+                });
+
+                return { item, questionEl, originalQuestion, matchCount };
+            });
+
+            scoredItems.sort((a, b) => b.matchCount - a.matchCount);
+
+            scoredItems.forEach(({ item, questionEl, originalQuestion, matchCount }) => {
+                accordion.appendChild(item);
+                if (matchCount > 0) {
+                    questionEl.innerHTML = originalQuestion;
+                    keywords.forEach(word => highlightTextInNode(questionEl, word));
+                    item.style.display = "block";
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        }
+
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return;
+
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = isStressMode ? 'hi-IN' : 'en-US';
+
+            recognition.onstart = () => { isListening = true; document.getElementById("micBtn").classList.add("listening"); };
+            recognition.onresult = (event) => {
+                let liveTranscript = "";
+                for (let i = 0; i < event.results.length; ++i) {
+                    liveTranscript += event.results[i][0].transcript;
+                }
+                const searchInput = document.getElementById("accordionSearch");
+                if (searchInput) {
+                    searchInput.value = liveTranscript;
+                    liveSearchAccordion();
+                }
+            };
+            recognition.onerror = () => stopListening();
+            recognition.onend = () => stopListening();
+        }
+
+        function toggleSpeechRecognition() {
+            if (!recognition) return;
+            if (isListening) {
+                recognition.stop();
+                stopListening();
+            } else {
+                recognition.lang = isStressMode ? 'hi-IN' : 'en-US';
+                recognition.start();
+            }
+        }
+
+        function stopListening() {
+            isListening = false;
+            const micBtn = document.getElementById("micBtn");
+            if (micBtn) micBtn.classList.remove("listening");
+        }
+
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', (e) => {
+                const searchInput = document.getElementById("accordionSearch");
+
+                if (e.ctrlKey) {
+                    if (e.key === 'ArrowUp') { e.preventDefault(); setContainerSize('view-size-75'); return; }
+                    if (e.key === 'ArrowRight') { e.preventDefault(); setContainerSize('view-size-50'); return; }
+                    if (e.key === 'ArrowDown') { e.preventDefault(); setContainerSize('view-size-25'); return; }
+                    if (e.key === 'ArrowLeft') { e.preventDefault(); setContainerSize('view-size-100'); return; }
+                }
+
+                const visibleItems = Array.from(document.querySelectorAll("#interviewAccordion .accordion-item"))
+                    .filter(item => item.style.display !== 'none');
+
+                if (e.shiftKey && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+                    if (visibleItems.length > 0) {
+                        e.preventDefault();
+                        if (e.key === 'ArrowDown') {
+                            selectedQuestionIndex = (selectedQuestionIndex < visibleItems.length - 1) ? selectedQuestionIndex + 1 : 0;
+                        } else if (e.key === 'ArrowUp') {
+                            selectedQuestionIndex = (selectedQuestionIndex > 0) ? selectedQuestionIndex - 1 : visibleItems.length - 1;
+                        }
+                        visibleItems.forEach((item, idx) => {
+                            if (idx === selectedQuestionIndex) {
+                                item.classList.add('selected-question');
+                                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            } else {
+                                item.classList.remove('selected-question');
+                            }
+                        });
+                        return;
+                    }
+                }
+
+                if (e.key === 'Enter') {
+                    if (selectedQuestionIndex !== -1 && visibleItems[selectedQuestionIndex]) {
+                        e.preventDefault();
+                        const targetItem = visibleItems[selectedQuestionIndex];
+                        const collapseEl = targetItem.querySelector('.accordion-collapse');
+                        if (collapseEl) {
+                            const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl);
+                            bsCollapse.show();
+                            setTimeout(() => {
+                                targetItem.classList.add('teleprompter-active');
+                                const body = collapseEl.querySelector('.accordion-body');
+                                const lines = Array.from(body.querySelectorAll('.ans-line'));
+                                if (lines.length > 0) {
+                                    updateTeleprompterLine(lines, 0);
+                                }
+                            }, 200);
+                        }
+                        if (searchInput) searchInput.blur();
+                        return;
+                    }
+                    e.preventDefault();
+                    toggleSpeechRecognition();
+                    return;
+                }
+
+                if (e.code === 'Space' && document.activeElement !== searchInput) {
+                    e.preventDefault();
+                    if (isListening) stopListening();
+
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    selectedQuestionIndex = -1;
+                    document.querySelectorAll('.accordion-item').forEach(item => {
+                        item.classList.remove('teleprompter-active');
+                        item.classList.remove('selected-question');
+                    });
+
+                    if (searchInput) {
+                        searchInput.value = "";
+                        searchInput.focus();
+                        liveSearchAccordion();
+                    }
+                    return;
+                }
+
+                if (document.activeElement === searchInput) return;
+
+                const openCollapse = document.querySelector('.accordion-collapse.show');
+                if (!openCollapse) return;
+
+                const parentItem = openCollapse.closest('.accordion-item');
+                const body = openCollapse.querySelector('.accordion-body');
+                const lines = Array.from(body.querySelectorAll('.ans-line'));
+                if (lines.length === 0) return;
+
+                body.classList.add('teleprompter-mode');
+                let currentIndex = lines.findIndex(line => line.classList.contains('active-line'));
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (currentIndex === -1) {
+                        currentIndex = 0;
+                    } else if (currentIndex < lines.length - 1) {
+                        currentIndex++;
+                    }
+                    if (parentItem) parentItem.classList.add('teleprompter-active');
+                    updateTeleprompterLine(lines, currentIndex);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (currentIndex > 0) {
+                        currentIndex--;
+                    }
+                    updateTeleprompterLine(lines, currentIndex);
+                }
+            });
+        }
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 
 </html>
