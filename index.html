@@ -337,7 +337,7 @@
             Hello, my name is Sarfraz Alam, and I am from Dhanbad, Jharkhand.<br><br>
             I completed my B.Sc. in Mathematics from St. Columba’s College in 2020.<br><br>
             I have around 4 years of experience in Technical Support as L1 and L2 Support Engineer roles.<br><br>
-            I started my career with Genpact as a Sr. Process Associate in a US-based technical support campaign where I worked as an L1 Support Engineer.<br><br>
+            I started my career with Genpact in a US-based campaign where I worked as an L1 Support Engineer.<br><br>
             My roles and responsibilities included:<br><br>
             • <span class="issue-link" onclick="showIssue('vpn')">Troubleshooting VPN connectivity issues</span>.<br>
             • <span class="issue-link" onclick="showIssue('desktop')">Resolving desktop and laptop-related issues</span>.<br>
@@ -378,6 +378,67 @@ Through these experiences, I developed strong technical troubleshooting, inciden
 
         `
             },
+
+            {
+    question: "1.1. Tell me about yourself or introduce yourself.",
+    answer: `
+        Hello, my name is Sarfraz Alam, and I am from Dhanbad, Jharkhand.<br><br>
+        I completed my B.Sc. in Mathematics from St. Columba’s College in 2020.<br><br>
+
+        I have around 4 years of experience in Technical Support as an L1 and L2 Support Engineer. Throughout my journey, I have worked with ticketing systems, helpdesk tools, desktop and laptop accessories, physical hardware connections, and peripheral device connectivity.<br><br>
+      I started my career with Genpact in a US-based campaign where I worked as an L1 Support Engineer.<br><br>
+        My core roles and responsibilities included:<br><br>
+        • <b>Ticketing Systems Management:</b> Managing, tracking, updating, prioritizing, and closing support tickets efficiently within defined SLAs.<br>
+        • <b>Computer Hardware & Accessories:</b> <span class="issue-link" onclick="showIssue('hardware')">Troubleshooting desktops, laptops, physical hardware connections, RAM, power supplies, and internal system components</span>.<br>
+        • <b>Peripheral & Device Connectivity:</b> <span class="issue-link" onclick="showIssue('hardware')">Handling device connections, driver installations, configurations, and resolving hardware-software compatibility errors</span>.<br>
+        • <span class="issue-link" onclick="showIssue('vpn')">Troubleshooting VPN connectivity issues</span>.<br>
+        • <span class="issue-link" onclick="showIssue('desktop')">Resolving desktop and laptop performance and freezing issues</span>.<br>
+        • <span class="issue-link" onclick="showIssue('email')">Handling Outlook synchronization and email configuration issues</span>.<br>
+        • <span class="issue-link" onclick="showIssue('password')">Password reset and account unlock support through Active Directory</span>.<br>
+        • <span class="issue-link" onclick="showIssue('network')">Troubleshooting network connectivity, internet access problems, and running IP/DNS checks</span>.<br>
+        • <span class="issue-link" onclick="showIssue('office')">Supporting MS Office applications like Outlook, Excel, Word, and Microsoft Teams</span>.<br>
+        • <span class="issue-link" onclick="showIssue('printer')">Assisting users with printer setups, software installations, and application access issues</span>.<br><br>
+
+        Later, I joined Concentrix as an L2 Support Executive where I handled escalated and complex technical issues assigned by the L1 team.<br><br>
+
+        As an L2 support engineer, my role was to perform advanced troubleshooting, identify root causes, and provide permanent solutions for technical issues.<br><br>
+
+        My L2 roles and responsibilities included:<br><br>
+        • <span class="issue-link" onclick="showIssue('l2desktop')">Handling escalated desktop, application, and system-related issues</span>.<br>
+        • <span class="issue-link" onclick="showIssue('l2vpn')">Performing advanced troubleshooting for VPN, network tunnels, and connectivity failures</span>.<br>
+        • <span class="issue-link" onclick="showIssue('mailbox')">Resolving complex Outlook synchronization, mailbox quotas, and email flow issues</span>.<br>
+        • <span class="issue-link" onclick="showIssue('software')">Troubleshooting software installation failures and application performance bottlenecks</span>.<br>
+        • <span class="issue-link" onclick="showIssue('access')">Handling user access management, permission controls, and security group assignments</span>.<br>
+        • <span class="issue-link" onclick="showIssue('windows')">Supporting Windows OS-related troubleshooting, registry fixes, and boot configuration</span>.<br>
+        • <span class="issue-link" onclick="showIssue('majorincident')">Coordinating with infrastructure and backend teams for major incidents</span>.<br><br>
+
+        In my career, I have hands-on experience working with ServiceNow, Jira, CRM platforms, remote desktop tools, Active Directory, Office 365, and internal support systems.<br><br>
+
+        Through these experiences, I have developed strong technical troubleshooting, incident management, communication, escalation handling, analytical thinking, and customer support skills.
+    `
+},
+
+{
+    question: "1.3. How do you troubleshoot Computer Hardware & Accessories issues (like desktops, laptops, physical connections, RAM, power supplies, and internal system components)?",
+    answer: `
+        When handling computer hardware and accessory issues—such as system hanging, blue screen errors (BSOD), no display on the monitor, or power supply failures—I follow a systematic troubleshooting approach:<br><br>
+        1. <b>Physical & Power Checks:</b> First, I verify all physical connections, power cables, and switches. If a PC is not booting or has no display, I listen for beep codes or check power supply (PSU) lights and internal fans to ensure power is reaching the motherboard.<br>
+        2. <b>Component Isolation (RAM & Storage):</b> For system hanging, sudden crashes, or BSOD errors, I check system memory. I perform a hard reset, reseat the RAM sticks, or test them individually to rule out faulty RAM modules.<br>
+        3. <b>System Diagnostics:</b> I use built-in Windows diagnostic tools like <code>chkdsk</code> for hard drive/storage health and check the <b>Event Viewer</b> logs to find exact error codes and failing components.<br>
+        4. <b>Thermal & Performance Monitoring:</b> I check CPU and RAM usage via Task Manager and inspect system temperature to ensure overheating or dust buildup isn't causing automatic shutdowns or performance bottlenecks.
+    `
+},
+{
+    question: "1.4. How do you handle Peripheral & Device Connectivity issues (like device connections, driver installations, configurations, and hardware-software compatibility errors)?",
+    answer: `
+        When a user reports peripheral or device connectivity issues—such as USB devices not working, devices not detected, or application/driver crashes—I troubleshoot step-by-step:<br><br>
+        1. <b>Port & Cable Verification:</b> I check if the external device (mouse, keyboard, headset, webcam, or USB drive) is securely plugged in, and ask the user to test it on a different USB port to isolate port-specific failures.<br>
+        2. <b>Device Manager Inspection:</b> I open <b>Device Manager</b> (<code>devmgmt.msc</code>) to check for missing drivers, unknown devices, or yellow warning triangles.<br>
+        3. <b>Driver Management:</b> If a device is not recognized or malfunctioning, I update, roll back, or completely uninstall and reinstall the official driver from the manufacturer's website.<br>
+        4. <b>Compatibility & Configuration:</b> For software or accessory compatibility errors, I verify operating system architecture, install required runtime dependencies (.NET Framework/Visual C++), or run installers in compatibility mode to ensure seamless device integration.
+    `
+},
+
             {
                 question: "2. What is the difference between Windows 10 and Windows 11?",
                 answer: `
@@ -1091,8 +1152,143 @@ Through these experiences, I developed strong technical troubleshooting, inciden
             VPN (Virtual Private Network) tools create a <b>secure bridge</b> between a user's home internet and the office network.<br><br>
             When a user is working from home, they cannot see the office files or printers. Once they connect to the VPN, their computer acts as if it is plugged into the office wall, allowing them to work safely.
         `
-            }
+            },
 
+            {
+                question: "85. What is AM2PM Support, what do they do, and what will be my role?",
+                answer: `
+        AM2PM Support Private Limited is an outsourcing and CSaaS (Customer Service as a Service) company that provides 24/7 customer service solutions—including call center, technical support, and live chat support—for global businesses in both **India and the United States**. It helps companies handle customer queries efficiently so that they can focus on their core operations.<br><br>
+        As a technical support executive in this process, my role is to handle <b>gaming hardware peripherals</b> (such as headsets, keyboards, mice, and microphones). When gamers face technical issues—like device connectivity drops, mic static, button or RGB lighting glitches, or software driver errors—my responsibility is to listen patiently, guide them step-by-step through troubleshooting, and help them resolve their issues quickly so they can get back to gaming without downtime.
+    `
+            },
+            {
+    question: "86. Tell me about yourself with respect to this gaming hardware support role.",
+    answer: `
+        Hello, my name is Sarfraz Alam, and I am from Dhanbad, Jharkhand.<br><br>
+        I have around 4 years of total experience in Technical Support, working in both L1 (Genpact) and L2 (Concentrix) roles, where I handled desktop troubleshooting, VPN, Outlook, Active Directory, and network issues.<br><br>
+        When it comes to this gaming hardware support process, I am very excited because I am passionate about technology and peripherals. In my previous roles, I have extensively handled hardware diagnostics, driver updates, USB/device connectivity, and peripheral troubleshooting. I know how frustrating it is for a gamer when their gear stops working in the middle of a game. My background in solving complex technical problems quickly and patiently makes me a great fit for this role to ensure gamers get back to action without downtime.
+    `
+},
+{
+    question: "87. What were your KPIs and KRAs in your previous technical support roles?",
+    answer: `
+        In my previous technical support roles at Genpact and Concentrix, my performance was measured based on a few key metrics (KPIs and KRAs):<br><br>
+        • <b>CSAT (Customer Satisfaction Score):</b> Keeping customers happy by resolving their issues with a polite and helpful attitude.<br>
+        • <b>AHT (Average Handling Time):</b> Resolving the customer's issue efficiently without keeping them waiting too long on calls or chats.<br>
+        • <b>FCR (First Contact Resolution):</b> My main goal was always to fix the customer's problem on the very first call or chat itself, so they don't have to call back.<br>
+        • <b>SLA (Service Level Agreement):</b> Ensuring that tickets and escalations are closed within the given time limits.<br>
+        • <b>KRA (Key Result Area):</b> Accurately documenting troubleshooting steps in ticketing tools like ServiceNow or Jira and maintaining zero security or process compliance breaches.
+    `
+},
+
+
+{
+    question: "88. How do you handle a difficult or irate customer where you were unable to fix the issue?",
+    answer: `
+        I still remember a moment when I received a call from a completely irate customer. He was extremely upset, shouting, and even accusing me because his device issue wasn't getting resolved after multiple attempts.<br><br>
+        Instead of reacting or arguing, I handled it step by step:<br><br>
+        1. <b>Listen and Empathize:</b> First, I stayed calm and let him vent. I said, <i>"Sir, I completely understand how frustrating it is when your device isn't working, and I am right here to help."</i><br>
+        2. <b>Set Clear Expectations:</b> Since standard steps weren't working, I didn't make false promises. I honestly explained what I had already tried.<br>
+        3. <b>Collaborate and Accelerate:</b> I took personal ownership. Rather than keeping him waiting, I collaborated directly with our senior L2 technician team right away. Normally, this process takes up to 24 hours, but I accelerated his case on a high-priority basis, talked to the senior department instantly, and got the issue fixed right away.<br>
+        4. <b>Calm Closure:</b> You won't believe what happened—he actually appreciated me! By showing genuine care, a clear plan, and quick action, the customer completely calmed down by the end of the call because he knew someone was truly taking care of his problem.
+    `
+}
+,
+{
+    question: "89. How do you handle technical troubleshooting for gaming hardware like headsets, mice, and keyboards?",
+    answer: `
+        When a gamer reaches out with a hardware issue—like a mic not working, a keyboard not connecting, or a mouse lagging—I follow a step-by-step troubleshooting process:<br><br>
+        1. <b>Physical Check:</b> First, I verify basic connections. Is the USB plugged into a proper port? Is the cable damaged? Is the power switch turned on?<br>
+        2. <b>Driver & Software Check:</b> I check Device Manager to see if the device driver is missing or showing an error. I guide them to update or reinstall the official software (like Logitech G Hub, Razer Synapse, etc.).<br>
+        3. <b>Port & Isolation Test:</b> I ask them to plug the device into a different USB port or test it on another computer to isolate whether the issue is with the hardware device itself or the customer's PC.<br>
+        4. <b>Firmware & Reset:</b> If it's a firmware glitch, I guide them through a factory reset or firmware update process to bring the device back to normal working condition.
+    `
+},
+
+{
+    question: "90. Based on the job description, what kind of gaming hardware and customer queries will we handle in this role?",
+    answer: `
+        Based on the job requirements, my role involves handling customer queries related to <b>gaming hardware peripherals</b> such as gaming keyboards, mice, headsets, controllers, and other accessories.<br><br>
+        My daily responsibilities include:<br>
+        • Troubleshooting hardware connectivity, driver installation, configuration, and compatibility issues.<br>
+        • Handling support requests through calls, emails, live chat, and helpdesk ticketing systems.<br>
+        • Managing and prioritizing open tickets to ensure timely resolution and high customer satisfaction.<br>
+        • Documenting technical troubleshooting steps accurately and escalating complex issues to senior teams when needed.
+    `
+},
+{
+    question: "91. Can you introduce yourself, highlighting your L1 support experience with ticketing tools, hardware, and peripherals?",
+    answer: `
+        Hello, my name is Sarfraz Alam, and I am from Dhanbad, Jharkhand. I have around 4 years of experience in technical support, including solid hands-on experience working in **L1 Support roles**.<br><br>
+        During my L1 support career, I have extensively worked with:<br>
+        • <b>Ticketing Systems & Helpdesk Tools:</b> Managing, tracking, updating, prioritizing, and closing support tickets efficiently within defined SLAs.<br>
+        • <b>Computer Hardware & Accessories:</b> Troubleshooting desktops, laptops, physical connections, and internal components.<br>
+        • <b>Peripherals & Connectivity:</b> Handling device connectivity, driver installation, configuration, and resolving hardware-software compatibility errors.<br>
+        • <b>Customer Communication & Handling:</b> Providing clear technical assistance via calls, emails, and chat while ensuring a positive customer experience and strong analytical troubleshooting.<br><br>
+        My background matches these job requirements closely, and I am ready to handle gaming hardware support efficiently from day one.
+    `
+},
+{
+    question: "94. What is the difference between a mechanical keyboard and a membrane keyboard?",
+    answer: `
+        This is a very common hardware and gaming peripheral question:<br><br>
+        • <b>Membrane Keyboard:</b> Uses a single rubber or silicone pressure pad underneath the keys. It is quiet, soft to press, and generally cheaper, but it lacks tactile feedback and wears out faster.<br>
+        • <b>Mechanical Keyboard:</b> Uses individual physical mechanical switches (like Cherry MX Blue, Red, or Brown) for every single key. It offers a satisfying click sound or tactile bump, faster response time, high durability, and anti-ghosting, making it the top choice for gamers and professionals.
+    `
+},
+{
+    question: "95. How do you troubleshoot a gaming mouse or keyboard that is lagging, freezing, or not responding?",
+    answer: `
+        When troubleshooting a lagging or unresponsive gaming peripheral, I follow these systematic steps:<br><br>
+        1. <b>USB Port & Connection Test:</b> Unplug the device and plug it into a different USB port (preferably a direct USB 2.0 or 3.0 port on the motherboard instead of an external hub).<br>
+        2. <b>Wireless Interference Check:</b> If it's a wireless/Bluetooth mouse or keyboard, check the battery level, re-pair the USB receiver dongle, and ensure there is no wireless interference from routers or other devices nearby.<br>
+        3. <b>Software & Driver Check:</b> Open Device Manager to see if the driver is showing errors. Update or reinstall the official device software (like Logitech G Hub, Razer Synapse, or Corsair iCUE).<br>
+        4. <b>Clean Startup Test:</b> Check if background applications or macro software are conflicting with the device polling rate and causing input lag.
+    `
+},
+{
+    question: "96. What is DPI and Polling Rate in gaming mice?",
+    answer: `
+        These are essential technical specs for gaming peripherals:<br><br>
+        • <b>DPI (Dots Per Inch):</b> Measures how sensitive a mouse cursor is. Higher DPI means the cursor moves faster across the screen with minimal physical hand movement.<br>
+        • <b>Polling Rate:</b> Measured in Hertz (Hz), it indicates how many times per second the mouse reports its position to the computer. A 1000Hz polling rate means it reports every 1 millisecond, ensuring zero input lag for competitive gaming.
+    `
+},
+{
+    question: "97. How do you troubleshoot a gaming headset where the audio is working, but the microphone is not picking up any voice?",
+    answer: `
+        When a customer reports microphone issues on a gaming headset, I check the following:<br><br>
+        1. <b>Physical Mute Switch:</b> First, check if the physical mute button on the headset cable or ear cup is accidentally turned ON.<br>
+        2. <b>Audio Settings & Default Device:</b> Open Windows Sound Settings (<code>mmsys.cpl</code>) and ensure the headset microphone is set as the <b>Default Recording Device</b> and volume levels are turned up.<br>
+        3. <b>Privacy Permissions:</b> Check Windows Privacy Settings to ensure apps have permission to access the microphone.<br>
+        4. <b>Splitter/Adapter Check:</b> If it uses dual 3.5mm jacks (audio and mic) or a single combined 4-pole jack, verify that the audio splitter cable is plugged into the correct color-coded ports on the PC.
+    `
+},
+{
+    question: "98. What is the role of Thermal Paste in computer hardware?",
+    answer: `
+        Thermal paste is a special heat-conducting compound applied between the CPU processor and the metal heatsink/cooler.<br><br>
+        <b>Its Job:</b> Microscopic air gaps exist between the CPU and the cooler. Thermal paste fills those microscopic gaps to maximize heat transfer away from the processor. If thermal paste dries out, the CPU overheats, leading to system throttling, game crashes, or sudden shutdowns.
+    `
+},
+{
+    question: "99. How do you identify if a computer issue is caused by a faulty RAM?",
+    answer: `
+        RAM (Random Access Memory) failures show very distinct symptoms:<br><br>
+        • Frequent **Blue Screen of Death (BSOD)** errors (like <code>MEMORY_MANAGEMENT</code>).<br>
+        • Sudden system freezing, application crashes, or random reboots during heavy tasks.<br>
+        • The computer turns on, but the monitor shows no display, accompanied by continuous motherboard beep codes.<br>
+        <b>How to test:</b> I run the built-in Windows Memory Diagnostic tool or reseat/test RAM sticks individually in different slots.
+    `
+},
+{
+    question: "100. What is the difference between an SSD and an HDD, and how does it affect system performance?",
+    answer: `
+        • <b>HDD (Hard Disk Drive):</b> Uses mechanical spinning magnetic disks and read/write heads. It is slower, makes noise, and is prone to mechanical damage from drops.<br>
+        • <b>SSD (Solid State Drive):</b> Uses flash memory chips with zero moving parts. It is lightning fast, completely silent, and highly durable.<br>
+        <b>Impact:</b> An SSD makes Windows boot up in seconds, reduces game loading screens significantly, and drastically improves overall system responsiveness compared to an old HDD.
+    `
+}
 
         ];
 
