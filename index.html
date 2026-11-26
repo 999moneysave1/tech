@@ -11,7 +11,7 @@
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -121,6 +121,41 @@
             color: #212529;
         }
 
+        /* Audio Control Bar Styling */
+        .audio-bar {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .audio-bar audio {
+            height: 34px;
+            max-width: 100%;
+            flex: 1 1 220px;
+        }
+
+        .mp3-file-name {
+            font-size: 0.78rem;
+            color: #475569;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .issue-link.has-mp3::after {
+            content: " 🎵";
+            font-size: 0.85em;
+            text-decoration: none;
+            display: inline-block;
+        }
+
         .ans-line {
             padding: 6px 10px;
             margin-bottom: 6px;
@@ -131,9 +166,13 @@
         }
 
         .ans-line.active-line {
-            background-color: #e0f2fe;
-            border-left: 3px solid var(--primary-color);
-            font-weight: 500;
+            background-color: #fef08a;
+            border-left: 2px solid var(--primary-color);
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0f172a;
+            text-align: justify !important;
+            text-align-last: center !important;
         }
 
         mark,
@@ -195,16 +234,6 @@
             display: none;
         }
 
-        .ans-line.active-line {
-            background-color: #fef08a;
-            border-left: 2px solid var(--primary-color);
-            font-size: 1rem;
-            font-weight: 600;
-            color: #0f172a;
-            text-align: justify !important;
-            text-align-last: center !important;
-        }
-
         .teleprompter-active .accordion-header {
             display: none !important;
         }
@@ -260,15 +289,25 @@
 
 <body>
 
-    <div class="d-flex justify-content-between align-items-center mb-2 px-2 pt-2">
-        <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" data-bs-toggle="modal"
-            data-bs-target="#howToUseModal">
-            How to Use (Shortcuts)
-        </button>
-        <!-- <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
-            <span class="small fw-semibold text-secondary">Accent Mode</span>
-            <input class="form-check-input m-0" type="checkbox" id="modeToggle" role="switch" onchange="toggleMode()" aria-label="Toggle Stress Mode">
-        </div> -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2 px-2 pt-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <button type="button" class="btn btn-sm btn-outline-primary fw-semibold" data-bs-toggle="modal"
+                data-bs-target="#howToUseModal">
+                How to Use (Shortcuts)
+            </button>
+            <button type="button" class="btn btn-sm btn-success fw-semibold" id="savePermanentHtmlBtn"
+                onclick="exportPermanentHTML()"
+                title="Saari uploaded MP3s ko isi HTML file me permanently embed karke save/download karein">
+                💾 Save Permanent HTML (with MP3s)
+            </button>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="small fw-semibold text-secondary" id="savedMp3Counter">🎵 0 MP3s Saved</span>
+            <button type="button" class="btn btn-sm btn-outline-danger d-none" id="stopGlobalTtsBtn"
+                onclick="stopTTS()">
+                ⏹ Stop Reading
+            </button>
+        </div>
     </div>
 
     <!-- How to Use Modal -->
@@ -276,19 +315,29 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content shadow border-0">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">🎯 Global Keyboard Commands & Shortcuts Guide</h5>
+                    <h5 class="modal-title fw-bold">🎯 Global Keyboard Commands & Audio Guide</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <p>Use Space for global reset, Enter to open selected question, and Arrow keys for teleprompter
-                        navigation.</p>
+                    <p>Use <kbd class="bg-dark text-white px-2 py-1">Space</kbd> for global reset,
+                        <kbd class="bg-dark text-white px-2 py-1">Enter</kbd> to open selected question,
+                        <kbd class="bg-dark text-white px-2 py-1">Shift + ↑/↓</kbd> to select questions, and
+                        <kbd class="bg-dark text-white px-2 py-1">↑/↓</kbd> for teleprompter navigation.
+                    </p>
+                    <hr>
+                    <h6 class="fw-bold">🔊 Audio & MP3 Features:</h6>
+                    <ul class="mb-0">
+                        <li><b>🔊 Read Q&A / Details:</b> Har question aur har link (modal) me click karke Question + Answer ko sun sakte hain.</li>
+                        <li><b>📁 Upload MP3:</b> Apni khud ki MP3/Audio file select karke upload karein — ye turant browser ke <b>IndexedDB</b> me permanently save ho jaati hai (reload karne par bhi rahegi).</li>
+                        <li><b>💾 Save Permanent HTML:</b> Agar aap chahte hain ki uploaded MP3s hamesha ke liye is single HTML file ke andar hi pack ho jaayein (taaki kisi bhi PC ya browser me chale), to upar <b>"Save Permanent HTML"</b> button dabakar file save/replace kar lein.</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Issue Details Modal (From Tech.html) -->
+    <!-- Issue Details Modal -->
     <div class="modal fade" id="issueModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -296,7 +345,10 @@
                     <h5 class="modal-title" id="issueTitle">Issue Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" id="issueContent"></div>
+                <div class="modal-body">
+                    <div id="issueAudioBar"></div>
+                    <div id="issueContent"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -323,83 +375,72 @@
         </main>
     </div>
 
+    <!-- Embedded Permanent Audio Store (Injected automatically when saving Permanent HTML) -->
+    <script id="embeddedAudioScript" type="application/json">{}</script>
+
     <!-- Bootstrap 5 JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-
-
-
-                const normalQuestions = [
+        const normalQuestions = [
 
             {
                 question: "1. Tell me about yourself or introduce yourself.",
                 answer: `
-            Hello, my name is Sarfraz Alam, and I am from Dhanbad, Jharkhand. I completed my B.Tech in Computer Science from Annamalai University, Tamil Nadu in 2021.<br><br>
+            Hello, my name is Sarfraz Alam, and I am from Dhanbad, Jharkhand. I completed my B.Sc. in Mathematics from St. Columba’s College.<br><br>
             I have around 4 years of experience in Technical Support across L1 and L2 Desktop Support Engineer roles.<br><br>
-            I started my career at <b>Genpact</b> as a Desktop Support Engineer from August 2022 – December 2024 . I joined there as an <b>L1 Support</b>, which is basically the first point of contact for the users. Here, my main focus was on basic troubleshooting and providing quick, standard solutions by following our internal step-by-step documentation and knowledge bases.<br><br>
+            I started my career at <b>Genpact</b> as a Desktop Support Engineer. I joined there as an <b>L1 Support</b>, which is basically the first point of contact for the users. Here, my main focus was on basic troubleshooting and providing quick, standard solutions by following our internal step-by-step documentation and knowledge bases.<br><br>
             At the L1 level, I dealt with both hardware and software issues:<br><br>
 
-            <b>1. Hardware Support:</b> (<span class="issue-link" onclick="showIssue('hardware_common')">For any hardware issues, my common approach is here</span>)<br><br>
+            <b>1. Hardware Support:</b> (<span class="issue-link" data-issue-key="hardware_common" onclick="showIssue('hardware_common')">For any hardware issues, my common approach is here</span>)<br><br>
             If I talk about the hardware issues I handled:<br>
-            - <span class="issue-link" onclick="showIssue('keyboard')">Keyboard issues</span> (such as keys on the keyboard not working or typing wrong characters)<br>
-            - <span class="issue-link" onclick="showIssue('mouse')">Mouse issues</span> (such as cursor frozen, lagging, or clicks not working)<br>
-            - <span class="issue-link" onclick="showIssue('monitor')">Monitor issues</span> (like a blank screen or display not detecting)<br>
-            - <span class="issue-link" onclick="showIssue('printer')">Printer issues</span> (such as not connecting, showing offline, or not printing)<br>
-            - <span class="issue-link" onclick="showIssue('cables')">Checking physical connections</span> (loose cables, docking station, and power ports)<br><br>
-
-
+            - <span class="issue-link" data-issue-key="keyboard" onclick="showIssue('keyboard')">Keyboard issues</span> (such as keys on the keyboard not working or typing wrong characters)<br>
+            - <span class="issue-link" data-issue-key="mouse" onclick="showIssue('mouse')">Mouse issues</span> (such as cursor frozen, lagging, or clicks not working)<br>
+            - <span class="issue-link" data-issue-key="monitor" onclick="showIssue('monitor')">Monitor issues</span> (like a blank screen or display not detecting)<br>
+            - <span class="issue-link" data-issue-key="printer" onclick="showIssue('printer')">Printer issues</span> (such as not connecting, showing offline, or not printing)<br>
+            - <span class="issue-link" data-issue-key="cables" onclick="showIssue('cables')">Checking physical connections</span> (loose cables, docking station, and power ports)<br><br>
 
             Since I was providing remote support, I used to guide the user step-by-step over the call by following our troubleshooting guide. If the issue got resolved with those steps, we closed the ticket; otherwise, we assigned an <b>on-site technician</b> to fix or replace the faulty part.<br><br>
 
-            <b>2. Software Support:</b> (<span class="issue-link" onclick="showIssue('software_common')">For any software issues, my common approach is here</span>)<br><br>
+            <b>2. Software Support:</b> (<span class="issue-link" data-issue-key="software_common" onclick="showIssue('software_common')">For any software issues, my common approach is here</span>)<br><br>
             On the software side, I used to take remote control of the user's screen and handled:<br>
-            - <span class="issue-link" onclick="showIssue('password')">Password resets and unlocking user accounts</span> in Active Directory<br>
-            - <span class="issue-link" onclick="showIssue('software_install')">Basic software installation and clearing browser cache and cookies</span><br>
-            - <span class="issue-link" onclick="showIssue('outlook')">MS Outlook not opening or crashing or Fixing MS Outlook when it wouldn't open or kept crashing</span><br>
-            - <span class="issue-link" onclick="showIssue('vpn')">VPN failing to connect or Fixing VPN when users couldn't connect from home</span><br>
+            - <span class="issue-link" data-issue-key="password" onclick="showIssue('password')">Password resets and unlocking user accounts</span> in Active Directory<br>
+            - <span class="issue-link" data-issue-key="software_install" onclick="showIssue('software_install')">Basic software installation and clearing browser cache and cookies</span><br>
+            - <span class="issue-link" data-issue-key="outlook" onclick="showIssue('outlook')">MS Outlook not opening or crashing or Fixing MS Outlook when it wouldn't open or kept crashing</span><br>
+            - <span class="issue-link" data-issue-key="vpn" onclick="showIssue('vpn')">VPN failing to connect or Fixing VPN when users couldn't connect from home</span><br>
             - Logging and tracking all tickets properly or Keeping proper records of every call and ticket in <b>ServiceNow</b> and <b>Jira</b>.<br><br>
 
             Then, when issues were a bit more complex and couldn't be resolved at L1, I used to escalate them to L2.
 
-            Later, I joined <b>Concentrix</b> as an <b>L2 Support Executive from January 2025 – October 2026 </b>, where I handled the advanced version of L1 hardware and software issues .<br><br>
+            Later, I joined <b>Concentrix</b> as an <b>L2 Support Executive</b>, where I handled the advanced version of L1 hardware and software issues .<br><br>
 
-                       At the L2 level, my main job was to find the root cause (why the problem was happening) and give a permanent fix:<br><br>
+            At the L2 level, my main job was to find the root cause (why the problem was happening) and give a permanent fix:<br><br>
 
-
-          <b>On the Hardware side, I used to handle:</b><br>
-            - Startup and system crash problems (like when a user's <span class="issue-link" onclick="showIssue('hang_l2')">computer hung completely</span>, showed a <span class="issue-link" onclick="showIssue('bsod_l2')">Blue Screen error</span>, or <span class="issue-link" onclick="showIssue('boot_l2')">didn't turn on properly</span>)<br><br>
+            <b>On the Hardware side, I used to handle:</b><br>
+            - Startup and system crash problems (like when a user's <span class="issue-link" data-issue-key="hang_l2" onclick="showIssue('hang_l2')">computer hung completely</span>, showed a <span class="issue-link" data-issue-key="bsod_l2" onclick="showIssue('bsod_l2')">Blue Screen error</span>, or <span class="issue-link" data-issue-key="boot_l2" onclick="showIssue('boot_l2')">didn't turn on properly</span>)<br><br>
 
             <b>On the Software side, I used to handle:</b><br>
-            - Software and email problems (like <span class="issue-link" onclick="showIssue('reinstall_l2')">removing and reinstalling broken apps</span>, <span class="issue-link" onclick="showIssue('vpn_l2')">fixing VPN issues</span>, <span class="issue-link" onclick="showIssue('win_repair_l2')">repairing Windows</span>, <span class="issue-link" onclick="showIssue('outlook_l2')">setting up Outlook emails from scratch</span>, and <span class="issue-link" onclick="showIssue('logs_l2')">checking error logs</span> to see why an app was crashing)<br><br>
+            - Software and email problems (like <span class="issue-link" data-issue-key="reinstall_l2" onclick="showIssue('reinstall_l2')">removing and reinstalling broken apps</span>, <span class="issue-link" data-issue-key="vpn_l2" onclick="showIssue('vpn_l2')">fixing VPN issues</span>, <span class="issue-link" data-issue-key="win_repair_l2" onclick="showIssue('win_repair_l2')">repairing Windows</span>, <span class="issue-link" data-issue-key="outlook_l2" onclick="showIssue('outlook_l2')">setting up Outlook emails from scratch</span>, and <span class="issue-link" data-issue-key="logs_l2" onclick="showIssue('logs_l2')">checking error logs</span> to see why an app was crashing)<br><br>
 
-            And if there was a really big problem that I couldn't solve at L2—like a main company server going down or a bug inside a software—I used to pass those tickets to <span class="issue-link" onclick="showIssue('l3_escalation')">L3 Support</span> (the backend and vendor teams) along with all the error details.<br><br>
+            And if there was a really big problem that I couldn't solve at L2—like a main company server going down or a bug inside a software—I used to pass those tickets to <span class="issue-link" data-issue-key="l3_escalation" onclick="showIssue('l3_escalation')">L3 Support</span> (the backend and vendor teams) along with all the error details.<br><br>
 
-
-
-            In Concentrix, I daily worked on <span class="issue-link" onclick="showIssue('tool_ticketing')">Ticketing Tools (ServiceNow & Jira)</span>, <span class="issue-link" onclick="showIssue('tool_remote')">Remote Desktop Tool (Microsoft Quick Assist)</span>, <span class="issue-link" onclick="showIssue('tool_ad')">Active Directory (ADUC)</span>, and <span class="issue-link" onclick="showIssue('tool_o365')">Office 365</span>.<br><br>
+            In Concentrix, I daily worked on <span class="issue-link" data-issue-key="tool_ticketing" onclick="showIssue('tool_ticketing')">Ticketing Tools (ServiceNow & Jira)</span>, <span class="issue-link" data-issue-key="tool_remote" onclick="showIssue('tool_remote')">Remote Desktop Tool (Microsoft Quick Assist)</span>, <span class="issue-link" data-issue-key="tool_ad" onclick="showIssue('tool_ad')">Active Directory (ADUC)</span>, and <span class="issue-link" data-issue-key="tool_o365" onclick="showIssue('tool_o365')">Office 365</span>.<br><br>
         `
             },
 
             {
                 question: "2. Explain POST and how you identify Hardware vs Software issues.",
                 answer: `
-        <div class="answer-text">
-            When we press the power button, the first thing that wakes up is the <b>BIOS (Basic Input Output System)</b>.<br>
-            It is a chip fixed on the motherboard that runs a quick hardware health check called <span class="issue-link" onclick="showIssue('post_hardware_software')">POST (Power-On Self-Test)</span> to verify if essential parts like the power supply, processor, RAM, display, and SSD/hard drive are working properly.<br><br>
-            Once all hardware checks pass, BIOS hands over control to the <b>SSD / Hard Drive</b> and tells it to load Windows.<br>
-            Using this startup flow, I identify whether an issue is hardware or software in three stages:<br><br>
-            <b>1. Before Windows Loads (Black Screen / Beep / Logo Freeze) → 100% Hardware Issue:</b><br>
-            If the screen stays completely black, makes beeping sounds, or freezes on the Dell/HP logo, it means POST failed.<br>
-            Since Windows hasn't even started yet, it is <b>100% a hardware issue</b> (like loose RAM or a faulty display).<br><br>
-            <b>2. During Windows Loading (SSD & OS Stage like Spinning Circle / Blue Screen) → Both Possible:</b><br>
-            If it passes the logo screen but gets stuck on the spinning circle, shows <i>"No Bootable Device"</i>, or gives a Blue Screen, it can be either hardware or software.<br>
-- <b>How I check if the SSD is fine or faulty:</b> I open <b>BIOS settings</b> (pressing F2/F12) and check Storage Information.<br>
-            If the SSD is <b>not detected in BIOS at all</b>, the SSD is physically dead (<b>Hardware issue</b>).<br>
-            If the SSD <b>is visible in BIOS</b>, the hardware is healthy and Windows boot files are corrupted (<b>Software issue</b>), which I fix via Windows Repair or OS reinstallation.<br><br>
-            <b>3. After Desktop Loads (App Crashes, Outlook Freezes, or PC Hangs) → Software Issue:</b><br>
-            Once the user reaches their desktop and everything is visible, if an application crashes or hangs, it is a <b>software issue</b>—unless an external peripheral like a mouse, keyboard, or charger is physically damaged.
-        </div>
+        When we press the power button of a laptop or desktop, the first thing that wakes up is the BIOS (Basic Input Output System). It is a chip on the motherboard that runs a quick test called POST (Power-On Self-Test). <br><br>
+        POST is used to check all the main hardware parts like the power supply, processor, RAM, display, and SSD or hard drive. Once all hardware checks pass, BIOS hands over control to the SSD or hard drive to load Windows. <br><br>
+        ​By looking at where the system gets stuck, we can easily tell if it’s a hardware or software issue: <br><br>
+​1. Before Windows loads (During POST): If the screen stays completely black, makes beeping sounds, or freezes on the Dell or HP logo, POST has failed. This is a 100% hardware issue—like loose RAM, a faulty display, or a motherboard issue.<br><br>
+​2. During Windows loading (After the logo): If the screen gets stuck on the spinning circle, shows 'No Bootable Device,' or shows a Blue Screen, it can be either hardware or software. <br><br>
+ To check this, we press F2 or Del(in dell devices) कुछ लैपटॉप में Fn + F2, F10, या Esc भी इस्तेमाल होता है) to open BIOS settings and check the Storage Information: <br><br>
+
+ ​If the SSD is NOT showing there, it means the motherboard cannot detect the drive—so it is a hardware issue (like a loose connection or a dead SSD).<br><br>
+​If the SSD IS showing there, the hardware is fine and it is a software issue (like corrupted Windows boot files), which we can fix by repairing or reinstalling Windows.<br><br>
+​3. After Windows loads: If everything opens normally and you can see your desktop and apps and then if you experience the system runs slow, hangs, or an app crashes then it is a software issue—unless an external device like a mouse, keyboard, or charger is physically damaged, which is a hardware issue."
         `
             },
 
@@ -421,7 +462,6 @@ Adit is an American company and Here I will be supporting US dental clinics (US 
                 answer: `
        I left Genpact because I was looking for better opportunities—especially, I wanted to move beyond L1 support and take on more challenges and responsibilities so I could grow into L2 support. </b><br>
 
-
             That’s when I got a big opportunity to join <b>Concentrix</b> as an <b>L2 Support Executive</b>. It was a great place for me to learn and grow. At Concentrix, I used everything I had learned from Genpact and also learned many new L2 troubleshooting skills.<br><br>
             Everything was going fine there, and I was really happy with my work. But I had to leave because the process I was working on got ramped down. They put me on the bench for a month, and since there was no new L2 project available at that time, I had to leave.<br><br>
             Now I am looking for a similar role, and
@@ -429,9 +469,9 @@ Adit is an American company and Here I will be supporting US dental clinics (US 
         `
             },
 
-          {
-        question: "3.13 What are your strengths and weaknesses?",
-        answer: `
+            {
+                question: "3.13 What are your strengths and weaknesses?",
+                answer: `
             <b>My Strengths:</b><br>
 - <b>I can handle both L1 and L2 support alone:</b> I can easily manage quick L1 fixes (like password resets and Outlook) as well as deep L2 root-cause troubleshooting on my own without needing constant help.<br>
 - <b>I can explain technical things in simple words:</b> I avoid confusing tech words and guide non-technical customers step-by-step in easy, everyday language so they feel comfortable.<br>
@@ -442,11 +482,11 @@ Adit is an American company and Here I will be supporting US dental clinics (US 
 - <b>I sometimes over-help customers beyond my role:</b> To keep users happy, I sometimes spend extra minutes fixing minor things outside my scope—now I politely guide them to the right team so my main queue doesn't get delayed.<br>
 - <b>I sometimes overthink small mistakes:</b> Even if I make a tiny typo in my ticket notes, I feel bad about it—now I just double-check my notes once before closing the ticket and move on.
         `
-    },
+            },
 
             {
-        question: "3.12 What were your KRAs and KPIs in L1 and L2 Technical Support (with formulas)?",
-        answer: `
+                question: "3.12 What were your KRAs and KPIs in L1 and L2 Technical Support (with formulas)?",
+                answer: `
             <b>KRA</b> means <b>Key Responsibility Areas</b> — the main duties of my job.<br>
             <b>KPI</b> means <b>Key Performance Indicators</b> — the numbers and formulas used to check how well I am doing my work.<br><br>
             ✔️ <b>In simple words:</b><br>
@@ -467,7 +507,7 @@ Adit is an American company and Here I will be supporting US dental clinics (US 
 - <b>Shift Adherence:</b> Following shift and break timings strictly. <i>Formula:</i> (Actual Working Time ÷ Scheduled Shift Time) × 100<br><br>
             So, KRA tells me <i>what my technical job is</i>, and KPI tells me <i>how well I am doing it</i>.
         `
-    },
+            },
             {
                 question: "3.2. Are you comfortable working in US shifts and handling voice support?",
                 answer: `
@@ -525,11 +565,8 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
             Basically, I can quickly figure out whether an issue is caused by the customer's internet or by our software, and guide them to a fast solution. <br><br>
             यहाँ Basic Networking (Router, Switches) का मतलब सिर्फ इतना ही है कि जब किसी क्लिनिक या कस्टमर के यहाँ इंटरनेट या कॉलिंग (VoIP) में कोई दिक्कत आए, तो आप यह पहचान सकें कि गलती उनके कंप्यूटर में है, उनके Wi-Fi/राउटर में है, या फिर उनके इंटरनेट सर्विस प्रोवाइडर (ISP) की तरफ से है। आपको कोई कोडिंग या राउटर सेटअप नहीं करना है, बस इंटरनेट इशू को सही से पकड़ना और ठीक करवाना है।
             <br><br>
-
-
         `
             },
-
 
             {
                 question: "3.7. What do you do when you don't know the answer to a customer's issue right away or can not fix the issue?",
@@ -542,7 +579,6 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
             My Take: Customers don't expect you to know everything in 2 seconds—they just want to know you won't leave them hanging.
         `
             },
-
 
             {
                 question: "3.8. What details do you write when logging a ticket in a CRM or ticketing tool?",
@@ -560,7 +596,6 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
             {
                 question: "3.9. How do you handle multiple  urgent tickets at once or many issues or many tickets without missing SLAs?",
                 answer: `
-
             When I get multiple urgent tickets at the same time, I don't panic. I just look at which problem is stopping the user's work completely and handle that first.<br><br>
 - <b> I will look at the Work-Stopping Issues First:</b> If a user can't log in or their system is completely down, I fix that first because they are totally stuck. Small things, like a minor setting change or a basic question, can wait a few minutes.<br>
 - <b>I will also check which one can be fixed quickly:</b> If a ticket only takes two minutes to solve, I finish it right away so my list gets smaller. And if an issue is going to take longer, I drop a quick message to the user so they know I'm already working on it.<br><br>
@@ -609,9 +644,7 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
 - <b>Write Simple Guides:</b> I write down the exact step-by-step fix in plain English so teammates can solve it faster—or customers can fix it themselves.<br><br>
             My Take: A good FAQ article solves a problem once instead of 100 times on live calls.
         `
-            }
-
-            ,
+            },
 
             {
                 question: "2. What is the difference between Windows 10 and Windows 11?",
@@ -681,17 +714,370 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
             <b>Tip:</b> If a computer is glitchy, a <b>Restart</b> is better than a Shutdown.
         `
             },
+
             {
-                question: "8. What is Task Manager used for?",
+                question: "13. Task Manager क्या है? (पूरी समझ और हर एक ऑप्शन का मतलब)",
                 answer: `
-            Task Manager is the "Command Center" for system health.<br><br>
-            <b>Primary Uses:</b><br>
-            1. <b>Process Management:</b> Closing "Not Responding" apps.<br>
-            2. <b>Performance Monitoring:</b> Real-time graphs of CPU, RAM, and Disk usage.<br>
-            3. <b>Startup Control:</b> Speeding up boot time by disabling apps.<br><br>
-            <b>Access:</b> Press <b>Ctrl + Shift + Esc</b>.
-        `
+        <b>Device Manager</b> और <b>Task Manager</b> का असली फर्क:<br>
+        - <b>Device Manager</b> = कंप्यूटर के <b>शरीर (Hardware)</b> का रजिस्टर है (जहाँ माउस, कीबोर्ड, कैमरा, Wi-Fi जैसे पुर्ज़े दिखते हैं)।<br>
+        - <b>Task Manager</b> = कंप्यूटर के <b>दिमाग और काम (Software & Load)</b> का लाइव मीटर है (जहाँ यह दिखता है कि अभी कंप्यूटर के अंदर कौन-सा सॉफ्टवेयर चल रहा है, कौन अटका हुआ है, और कंप्यूटर पर कितना लोड पड़ रहा है)।<br><br>
+
+        <b>क्या Task Manager सिर्फ Software Issues में काम आता है, या Hardware में भी?</b><br>
+        इसका इस्तेमाल <b>दोनों में होता है (लगभग 90% Software और 10% Hardware चेक करने के लिए)</b>:<br>
+        - <b>90% Software / System Slowness में:</b> जैसे ऐप हैंग होना, लैपटॉप स्लो चलना, या देर से ऑन (Boot) होना।<br>
+        - <b>10% Hardware Check करने में:</b> <b>Performance</b> टैब में जाकर हम यह भी चेक कर सकते हैं कि कंप्यूटर के असली हार्डवेयर पार्ट्स (जैसे RAM, Hard Disk/SSD, Wi-Fi कार्ड, और Graphics कार्ड) सही से काम कर रहे हैं या नहीं। जैसे—अगर लैपटॉप में 8 GB RAM लगी है, पर यहाँ सिर्फ 4 GB दिख रही है, तो मतलब एक RAM स्लॉट खराब या ढीला है; या Wi-Fi का ग्राफ बिल्कुल 0 पर है, तो Wi-Fi हार्डवेयर या नेटवर्क में दिक्कत है।<br><br>
+
+        <b>हिस्सा 1: जब <code>Ctrl + Alt + Delete</code> दबाते हैं, तो जो 5 ऑप्शन आते हैं, उनका क्या मतलब है?</b><br>
+        जब कंप्यूटर अटक जाता है या हमें सुरक्षा (Security) चाहिए होती है, तो <code>Ctrl + Alt + Delete</code> दबाने पर ये ऑप्शन आते हैं:<br>
+        1. <b>Lock (लॉक करना):</b><br>
+        &nbsp;&nbsp;- <b>मतलब:</b> जैसे हम मोबाइल का पावर बटन दबाकर स्क्रीन लॉक कर देते हैं। आपके सारे खुले हुए काम (Chrome, Excel) अंदर वैसे ही चलते रहेंगे, बस स्क्रीन पर पासवर्ड लग जाएगा ताकि कोई और आपकी सीट पर बैठकर ताक-झांक न करे।<br>
+        2. <b>Switch user (यूज़र बदलना):</b><br>
+        &nbsp;&nbsp;- <b>मतलब:</b> मान लो एक ही ऑफिस लैपटॉप में दो लोगों के अकाउंट बने हैं (एक आपका, एक आपके दोस्त का)। बिना अपने खुले हुए ऐप्स बंद किए, आप दूसरे व्यक्ति के अकाउंट में जा सकते हैं। आपका काम पीछे सुरक्षित चलता रहेगा।<br>
+        3. <b>Sign out (साइन आउट करना):</b><br>
+        &nbsp;&nbsp;- <b>मतलब:</b> अपने अकाउंट से पूरी तरह बाहर निकलना। इसमें आपके जितने भी खुले हुए ऐप्स और फाइलें हैं, सब बंद हो जाएँगी और आप वापस लॉगिन स्क्रीन पर आ जाएंगे (लैपटॉप बंद नहीं होगा, बस आपका सेशन खत्म हो जाएगा)।<br>
+        4. <b>Change a password (पासवर्ड बदलना):</b><br>
+        &nbsp;&nbsp;- <b>मतलब:</b> अगर आपको अपना पुराना पासवर्ड याद है और आप नया पासवर्ड रखना चाहते हैं, तो यहाँ पुराना पासवर्ड डालकर नया पासवर्ड सेट कर सकते हैं।<br>
+        5. <b>Task Manager (टास्क मैनेजर):</b><br>
+        &nbsp;&nbsp;- <b>मतलब:</b> कंप्यूटर के अंदर के लाइव कंट्रोल रूम को खोलना। <i>(आसान टिप: इतनी लंबी स्क्रीन पर जाने की बजाय सीधे <code>Ctrl + Shift + Esc</code> दबाओगे तो भी Task Manager खुल जाएगा)</i>।<br><br>
+
+        <b>हिस्सा 2: Task Manager के सारे ऑप्शन (बिल्कुल आसान भाषा में)</b><br>
+        Task Manager में बाईं तरफ (Left side) 7 मुख्य ऑप्शन दिखते हैं। हर एक का असली काम:<br>
+        1. <b>Processes (प्रोसेसेज़ — अभी क्या-क्या चल रहा है):</b><br>
+        &nbsp;&nbsp;- <b>यह क्या है:</b> यहाँ उन सभी ऐप्स की लाइव लिस्ट दिखती है जो अभी आपके कंप्यूटर में खुले हैं या पीछे (Background में) चुपचाप चल रहे हैं।<br>
+        &nbsp;&nbsp;- <b>कब काम आता है:</b> जब कोई ऐप (जैसे Chrome या Outlook) <b>हैंग (Not Responding)</b> हो जाए और बंद न हो, तो यहाँ आकर उस पर राइट-क्लिक करके <b>End task</b> दबाते हैं—वो ऐप तुरंत ज़बरदस्ती बंद हो जाता है।<br>
+        2. <b>Performance (परफॉर्मेंस — इंजन का लाइव मीटर):</b><br>
+        &nbsp;&nbsp;- <b>यह क्या है:</b> यहाँ दिल की धड़कन (ECG) जैसे ग्राफ चलते रहते हैं जो बताते हैं कि <b>CPU (दिमाग)</b>, <b>Memory/RAM</b>, <b>Disk (हार्ड ड्राइव)</b>, और <b>Wi-Fi</b> पर अभी कितना लोड पड़ रहा है।<br>
+        &nbsp;&nbsp;- <b>कब काम आता है:</b> जब यूज़र कहे कि <i>"लैपटॉप बहुत स्लो चल रहा है"</i>, तो यहाँ आकर देखते हैं कि कहीं CPU या RAM 100% तो नहीं भर गई। <i>(यहीं नीचे <b>Up time</b> भी दिखता है, जिससे पता चलता है कि लैपटॉप कितने दिनों से रीस्टार्ट नहीं हुआ है)</i>।<br>
+        3. <b>App history (ऐप हिस्ट्री — किसने कितना डेटा/ताकत खाया):</b><br>
+        &nbsp;&nbsp;- <b>यह क्या है:</b> यह पिछले 30 दिनों का हिसाब-किताब रखता है कि किस ऐप ने सबसे ज्यादा इंटरनेट डेटा और बैटरी/CPU खर्च किया है। <i>(सपोर्ट में इसका इस्तेमाल बहुत कम होता है)</i>।<br>
+        4. <b>Startup apps (स्टार्टअप ऐप्स — ऑन होते ही कौन-कौन जाग जाता है):</b><br>
+        &nbsp;&nbsp;- <b>यह क्या है:</b> कुछ ऐप्स (जैसे Spotify, Teams, Skype) ऐसे होते हैं जो लैपटॉप का पावर बटन दबाते ही अपने आप पीछे से चालू हो जाते हैं।<br>
+        &nbsp;&nbsp;- <b>कब काम आता है:</b> जब यूज़र कहे कि <i>"लैपटॉप ऑन होने में 5-10 मिनट लगाता है"</i>, तो यहाँ आकर जिन फालतू ऐप्स के आगे <b>High impact</b> लिखा हो, उन्हें <b>Disable</b> कर देते हैं—इससे लैपटॉप तेज़ी से स्टार्ट होने लगता है।<br>
+        5. <b>Users (यूज़र्स — कौन-कौन लॉगिन है):</b><br>
+        &nbsp;&nbsp;- <b>यह क्या है:</b> यहाँ दिखता है कि इस कंप्यूटर में अभी कौन-सा यूज़र लॉगिन है और वह कितनी RAM/CPU इस्तेमाल कर रहा है। <i>(अगर दो यूज़र लॉगिन हैं, तो किसी एक को यहाँ से Disconnect या Sign off कर सकते हैं)</i>।<br>
+        6. <b>Details (डिटेल्स — तकनीकी नाम और PID नंबर):</b><br>
+        &nbsp;&nbsp;- <b>यह क्या है:</b> यह <b>Processes</b> का ही थोड़ा और गहरा (Technical) रूप है। यहाँ हर ऐप का असली फाइल नाम (जैसे <code>chrome.exe</code> या <code>explorer.exe</code>) और उसका एक खास नंबर (<b>PID - Process ID</b>) दिखता है।<br>
+        &nbsp;&nbsp;- <b>कब काम आता है:</b> जब कोई ज़िद्दी वायरस या अटका हुआ सॉफ्टवेयर <i>Processes</i> से बंद न हो, तो यहाँ आकर उसकी <code>.exe</code> फाइल को <b>End process tree</b> करके जड़ से बंद करते हैं।<br>
+        7. <b>Services (सर्विसेज़ — इंजन के अंदर के छोटे पुर्ज़े):</b><br>
+        &nbsp;&nbsp;- <b>यह क्या है:</b> Windows को चलाने के लिए पीछे सैकड़ों छोटी-छोटी सरकारी सेवाएं (Services) चलती रहती हैं—जैसे <b>Print Spooler</b> (प्रिंटर चलाने वाली सर्विस), <b>Windows Update</b>, या <b>Wi-Fi सर्विस</b>।<br>
+        &nbsp;&nbsp;- <b>कब काम आता है:</b> मान लो यूज़र कहे कि <i>"प्रिंटर बिल्कुल सही जुड़ा है, ड्राइवर भी ठीक है, फिर भी प्रिंट नहीं हो रहा"</i>—तो हम यहाँ <b>Services</b> में आकर <b>Print Spooler</b> ढूँढते हैं और उस पर राइट-क्लिक करके <b>Restart</b> कर देते हैं, प्रिंटर तुरंत चलने लगता है।<br><br>
+
+        <b>हिस्सा 3: किन-किन समस्याओं (Issues) में Task Manager का इस्तेमाल करते हैं?</b><br>
+        जब भी यूज़र इनमें से कोई भी शिकायत करे, तो सीधे <b>Task Manager</b> खोलना है:<br>
+        1. <b>कोई सॉफ्टवेयर अटक गया है:</b> <i>"मेरा Excel, Chrome या Teams फ्रीज़ हो गया है, बंद ही नहीं हो रहा।"</i> → <b>Processes</b> में जाकर <b>End task</b> करें।<br>
+        2. <b>कंप्यूटर बहुत स्लो या गर्म हो रहा है:</b> <i>"लैपटॉप बहुत धीरे चल रहा है, पंखा तेज़ आवाज़ कर रहा है।"</i> → <b>Performance</b> में देखें कि कौन-सा ऐप 90%–100% CPU या RAM खा रहा है, और उसे बंद करें।<br>
+        3. <b>लैपटॉप बहुत देर में चालू (Boot) होता है:</b> <i>"सुबह लैपटॉप ऑन करने पर स्क्रीन आने में बहुत टाइम लगता है।"</i> → <b>Startup apps</b> में जाकर फालतू ऐप्स को <b>Disable</b> करें।<br>
+        4. <b>प्रिंटर या कोई सिस्टम फीचर अटक गया है:</b> <i>"प्रिंट कमांड दे रहा हूँ पर कुछ हो नहीं रहा।"</i> → <b>Services</b> में जाकर <b>Print Spooler</b> को <b>Restart</b> करें।<br>
+        5. <b>डेस्कटॉप की स्क्रीन काली हो गई है या नीचे की पट्टी (Taskbar) गायब है:</b> → <b>Processes</b> या <b>Details</b> में जाकर <b>Windows Explorer (<code>explorer.exe</code>)</b> को <b>Restart</b> करें, पूरी स्क्रीन तुरंत वापस आ जाएगी।
+    `
             },
+
+            {
+                question: "13. What is Task Manager used for?",
+                answer: `
+        <b>Task Manager</b> (<code>Ctrl + Shift + Esc</code>) or<code> Windows+R </code> then click on task manager and third way <code> Ctrl+Alt+Del </code> (It will show lock, switch user, sign out, change password and task manger ) <br><br>
+        It is the live meter of the computer's brain and running tasks—it shows which applications are currently running, which one is stuck or slow, and how much load is on the system.<br><br>
+
+        <b>When and How I Use Task Manager in L1 Support:</b><br>
+        - <b>1. Closing Frozen Apps (Processes):</b> When an app like Outlook, Chrome, or Excel freezes (<i>"Not Responding"</i>), I open the <b>Processes</b> tab, right-click the app, and click <b>End task</b> to force-close it.<br>
+        - <b>2. Checking Why the Laptop is Slow (Performance):</b> When a user says the PC is running slow or overheating, I check the live graphs in the <b>Performance</b> tab to see if <b>CPU, RAM, or Disk</b> is hitting 90–100%, and check the <b>Up time</b> to see if the system hasn't been restarted for days.<br>
+        - <b>3. Speeding Up Slow Startup / Boot Time (Startup apps):</b> If the laptop takes 5–10 minutes to turn on, I open <b>Startup apps</b> and <b>Disable</b> unnecessary <i>High impact</i> apps (like Spotify or Teams) that auto-launch at boot.<br>
+        - <b>4. Restarting Stuck Background Services (Services & Details):</b> If a printer is stuck even though cables and drivers are fine, I go to the <b>Services</b> tab and restart <b>Print Spooler</b>. If the desktop screen goes black or the taskbar freezes, I restart <b>Windows Explorer (<code>explorer.exe</code>)</b>.
+
+        <b>Is Task Manager used only for Software issues, or Hardware too?</b><br>
+        It is used for <b>both (around 90% Software and 10% Hardware checks)</b>:<br>
+        - <b>90% Software / System Slowness:</b> Such as closing frozen apps, checking why the laptop is slow, or fixing slow startup/boot time.<br>
+        - <b>10% Hardware Checks:</b> In the <b>Performance</b> tab, we can check if physical parts (like RAM, Hard Disk/SSD, Wi-Fi card, and Graphics) are detected and working properly—for example, if 8 GB RAM is installed but only 4 GB shows up, it means one RAM slot is faulty or loose.<br><br>
+    `
+            },
+            {
+                question: "Network & Internet विभाग क्या है? इसमें Wi-Fi, Ethernet, Mobile Hotspot, VPN, Proxy, Airplane Mode, Dial-up क्या होते हैं, और MAC Address, IP Address (IPv4/IPv6, Private/Public), Subnet Mask (Divider), Default Gateway, ipconfig और ping कमांड्स L1/L2 IT Support में कैसे काम करते हैं?",
+                answer: `
+        <b>Network & Internet विभाग के 7 कर्मचारी (Options)</b><br>
+        अब सोचिए कि आपके लैपटॉप को बाहर की दुनिया से बात करनी है—जैसे Google से कुछ पूछना है, YouTube चलाना है, या ईमेल भेजना है। यह सारा काम <b>Network & Internet</b> विभाग संभालता है। इस विभाग के अंदर 7 अलग-अलग कर्मचारी (Options) काम करते हैं, जिनका काम करने का तरीका अलग-अलग है:<br>
+- <b>Wi-Fi (हवा के ज़रिए बात करने वाला संदेशवाहक):</b> यह बिना किसी तार के, हवा में मौजूद सिग्नलों (Router या मोबाइल हॉटस्पॉट) को पकड़ता है और बाहर की दुनिया से आपका संपर्क जोड़ देता है।<br>
+- <b>Ethernet (पक्की और तेज़ टेलीफोन लाइन):</b> यह एक मोटी केबल (LAN wire) के ज़रिए सीधा राउटर से जुड़ता है। जब हवा के सिग्नल (Wi-Fi) कमजोर पड़ते हैं, तब यह केबल बिना रुके सबसे तेज़ इंटरनेट देती है। <i>(पिछली बार आपने इसी केबल वाले कर्मचारी से IP एड्रेस पूछा था, लेकिन क्योंकि केबल लगी ही नहीं थी, इसलिए वह चुप बैठा था!)</i><br>
+- <b>Mobile Hotspot (मददगार पड़ोसी):</b> मान लीजिए आपके लैपटॉप में Ethernet केबल से बहुत तेज़ इंटरनेट आ रहा है, लेकिन आपके फोन का डेटा खत्म हो गया है। तब यह कर्मचारी आपके लैपटॉप के इंटरनेट को एक छोटे Wi-Fi टावर में बदल देता है, ताकि आपका फोन या दोस्त का लैपटॉप भी इंटरनेट चला सके।<br>
+- <b>VPN और Proxy में क्या अंतर है?</b> VPN और Proxy देखने में एक जैसे लगते हैं क्योंकि दोनों ही आपका असली IP Address छिपाते हैं और बाहर की वेबसाइट को आपका असली पता नहीं चलने देते। लेकिन दोनों के काम करने के तरीके और सुरक्षा में ज़मीन-आसमान का फ़र्क है। इसे एक ऑफिस बिल्डिंग और दो अलग-अलग कामों के उदाहरण से समझते हैं, ताकि आपका कन्फ्यूजन हमेशा के लिए खत्म हो जाए:<br><br>
+
+- <b>1. Proxy Server (दरबान या डाकिया) — बिना ताले वाली चिट्ठी:</b> सोचिए आप किसी बड़ी कंपनी के ऑफिस में बैठे हैं। वहाँ नियम है कि कोई भी कर्मचारी सीधे बाहर जाकर काम नहीं कर सकता। बीच में एक दरबान (Proxy Server) बैठा है।<br>
+  &nbsp;&nbsp;- <i>यह कैसे काम करता है?</i><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;1. आप अपने Chrome ब्राउज़र में <code>youtube.com</code> या <code>amazon.com</code> लिखते हैं।<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;2. आपकी यह रिक्वेस्ट पहले Proxy Server (दरबान) के पास जाती है।<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;3. दरबान चेक करता है: <i>"क्या कंपनी ने इस वेबसाइट को खोलने की इजाज़त दी है?"</i><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• अगर वह काम की वेबसाइट है, तो दरबान अपना नाम (अपना IP Address) लगाकर बाहर इंटरनेट से वह पेज लाता है और आपको दे देता है। बाहर की वेबसाइट को यही लगता है कि दरबान ने पेज मांगा है, आपका कंप्यूटर छिपा रहता है।<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• अगर वह मनोरंजन या खतरनाक वेबसाइट है (जैसे गेमिंग या वायरस वाली साइट), तो दरबान वहीं गेट पर रोक देता है: <code>"Access Denied (Blocked by Admin)"</code>।<br>
+  &nbsp;&nbsp;- <i>Proxy की सबसे बड़ी कमज़ोरी (कहाँ फेल होता है?):</i><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;• Proxy डेटा पर ताला (Encryption) नहीं लगाता। यह एक खुली पोस्टकार्ड चिट्ठी की तरह है—रास्ते में बैठा इंटरनेट सर्विस प्रोवाइडर (ISP) या कोई हैकर पढ़ सकता है कि अंदर क्या लिखा है।<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;• यह ज़्यादातर सिर्फ़ एक ऐप या ब्राउज़र (जैसे Chrome) पर काम करता है, पूरे कंप्यूटर पर नहीं।<br><br>
+
+- <b>2. VPN — Virtual Private Network (बुलेटप्रूफ खुफिया सुरंग):</b> अब सोचिए कि आप घर से (Work From Home) काम कर रहे हैं या किसी पब्लिक Wi-Fi (जैसे रेलवे स्टेशन या कैफ़े) पर बैठे हैं। आपको कंपनी के प्राइवेट बैंक अकाउंट, HR पोर्टल या किसी ऐसी ऐप (जैसे CapCut) पर काम करना है जो आपके देश में बंद है। यहाँ दरबान (Proxy) से काम नहीं चलेगा, यहाँ आपको VPN चाहिए।<br>
+  &nbsp;&nbsp;- <i>यह कैसे काम करता है?</i><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;1. जैसे ही आप VPN ऑन करते हैं, यह आपके पूरे लैपटॉप और दूसरे देश (या ऑफिस) के सर्वर के बीच एक मज़बूत, बंद और बुलेटप्रूफ सुरंग (Encrypted Tunnel) बना देता है।<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;2. आपका सारा डेटा—चाहे वह Chrome से जाए, WhatsApp से जाए, या किसी सॉफ्टवेयर से—सब पर एक मज़बूत डिजिटल ताला (Encryption) लग जाता है।<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;3. बाहर की दुनिया (आपका Wi-Fi मालिक, Jio/Airtel कंपनी, या कोई हैकर) सिर्फ़ इतना देख सकता है कि एक बंद सुरंग जा रही है, लेकिन उस सुरंग के अंदर आप कौन-सी वेबसाइट देख रहे हैं या क्या पासवर्ड डाल रहे हैं—यह कोई नहीं पढ़ सकता।<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;4. साथ ही, यह आपका IP Address और लोकेशन भी बदल देता है (जैसे आप भारत में बैठे हैं, पर वेबसाइट को लगेगा कि आप अमेरिका या सिंगापुर से जुड़े हैं)।<br><br>
+
+- <b>दोनों के बीच का असली फ़र्क (1 नज़र में तुलना):</b><br>
+  &nbsp;&nbsp;- <i>असली काम क्या है?</i> → <b>Proxy:</b> सिर्फ़ आपका IP Address छिपाना और वेबसाइटों को ब्लॉक/अनब्लॉक करना। | <b>VPN:</b> IP Address छिपाने के साथ-साथ पूरे डेटा पर सुरक्षा ताला (Encryption) लगाना।<br>
+  &nbsp;&nbsp;- <i>डेटा सुरक्षित (Encrypt) होता है?</i> → <b>Proxy:</b> नहीं (डेटा खुला जाता है, हैकर रास्ते में पढ़ सकता है)। | <b>VPN:</b> हाँ, 100% (डेटा पर मज़बूत ताला लगा होता है, कोई नहीं पढ़ सकता)।<br>
+  &nbsp;&nbsp;- <i>किस पर काम करता है?</i> → <b>Proxy:</b> सिर्फ़ एक ब्राउज़र या ऐप (जैसे सिर्फ़ Chrome) पर। | <b>VPN:</b> पूरे कंप्यूटर/फ़ोन के हर ऐप और इंटरनेट ट्रैफ़िक पर।<br>
+  &nbsp;&nbsp;- <i>स्पीड कैसी होती है?</i> → <b>Proxy:</b> तेज़ होती है (क्योंकि ताला लगाने में समय नहीं लगता)। | <b>VPN:</b> थोड़ी-सी कम हो सकती है (क्योंकि डेटा को लॉक और अनलॉक किया जाता है)।<br>
+  &nbsp;&nbsp;- <i>असली इस्तेमाल कहाँ होता है?</i> → <b>Proxy:</b> ऑफिस/स्कूल में बेकार वेबसाइट्स ब्लॉक करने के लिए। | <b>VPN:</b> Work From Home में कंपनी सर्वर से जुड़ने, पब्लिक Wi-Fi पर सुरक्षा के लिए, और रीजन-लॉक ऐप्स चलाने के लिए।<br><br>
+
+- <b>L1/L2 IT Support में इन दोनों से जुड़ी 2 बड़ी समस्याएं (जो आपको रोज़ मिलेंगी):</b><br>
+  &nbsp;&nbsp;- <i>1. Proxy की समस्या:</i> यूज़र कहेगा <i>"मेरा Wi-Fi जुड़ा है, <code>ping google.com</code> भी चल रहा है, पर Chrome में कोई भी वेबसाइट नहीं खुल रही और 'Proxy Server is refusing connections' लिखकर आ रहा है।"</i><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;• <b>इलाज:</b> <b>Settings (<code>Win + I</code>) → Network & internet → Proxy</b> में जाकर देखें—वहाँ किसी वायरस या पुराने सॉफ्टवेयर ने गलती से <i>"Use a proxy server"</i> को ON कर दिया होगा। उसे <b>OFF</b> करते ही इंटरनेट चलने लगेगा।<br>
+  &nbsp;&nbsp;- <i>2. VPN की समस्या:</i> घर से काम करने वाला कर्मचारी कहेगा <i>"मेरा बाकी इंटरनेट (YouTube/Google) चल रहा है, पर कंपनी का SAP या ऑफिस पोर्टल नहीं खुल रहा।"</i><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;• <b>इलाज:</b> आप तुरंत चेक करेंगे कि उसका <b>VPN</b> (जैसे Cisco AnyConnect या GlobalProtect) कनेक्ट है या नहीं। कंपनी के प्राइवेट सॉफ्टवेयर बिना VPN की सुरंग के नहीं खुलते।<br>
+- <b>Dial-up (पुराने ज़माने का डाकिया):</b> यह 20-25 साल पहले का कर्मचारी है जो घर के लैंडलाइन फोन के तार से इंटरनेट चलाता था। आज के ज़माने में यह रिटायर हो चुका है, बस पुरानी यादों के तौर पर सिस्टम में रखा गया है।<br><br>
+
+        <b>1. MAC Address और IP Address क्या हैं?</b><br>
+- <b>MAC Address (आपके लैपटॉप का आधार कार्ड / चेसिस नंबर):</b><br>
+        &nbsp;&nbsp;- MAC Address आपके नेटवर्क कार्ड का आधार कार्ड (Permanent नाम) है, जो कभी नहीं बदलता।<br>
+        &nbsp;&nbsp;- जैसे इंसान का घर बदल सकता है (IP Address), लेकिन उसका आधार नंबर या फिंगरप्रिंट कभी नहीं बदलता—वैसे ही हर लैपटॉप या मोबाइल के अंदर लगे नेटवर्क कार्ड पर कंपनी फैक्ट्री से ही एक पक्का नंबर लिखकर भेजती है (जैसे <code>08:8F:C3:5C:C6:4C</code>)। इसे Physical Address या MAC Address कहते हैं।<br>
+        &nbsp;&nbsp;- <b>ध्यान रखें:</b> आपके लैपटॉप में Wi-Fi कार्ड का MAC Address अलग होता है और Ethernet (केबल) कार्ड का MAC Address अलग होता है।<br>
+- <b>IP Address (आपके घर का किराए का पता):</b><br>
+        &nbsp;&nbsp;- IP Address आपके घर का किराए का पता है—जब आप घर के Wi-Fi से जुड़ते हैं तो अलग पता मिलता है, और जब रेलवे स्टेशन के Wi-Fi से जुड़ते हैं तो नया पता मिलता है।<br>
+        &nbsp;&nbsp;- जब भी आप इंटरनेट से जुड़ते हैं, तो राउटर या मोबाइल कंपनी आपके लैपटॉप को एक नंबर देती है, जैसे <code>192.168.1.5</code>। यही IP Address है।<br>
+        &nbsp;&nbsp;- <b>यह क्यों ज़रूरी है?</b> ताकि जब आप YouTube पर कोई वीडियो चलाएं, तो YouTube के सर्वर को पता रहे कि वीडियो किस पते पर भेजना है।<br>
+        &nbsp;&nbsp;- <b>खास बात:</b> यह पता बदलता रहता है। घर के Wi-Fi पर आपका IP अलग होगा, और रेलवे स्टेशन के Wi-Fi पर अलग।<br><br>
+
+        <b>2. IPv4 और IPv6 में क्या फ़र्क है? (पुराना मोबाइल नंबर बनाम नया आधार नंबर)</b><br>
+- <b>IPv4:</b> यह पुराना सिस्टम है, जो 4 छोटे नंबरों से बनता है (जैसे <code>192.168.1.1</code>)। दुनिया में मोबाइल और कंप्यूटर इतने बढ़ गए कि ये नंबर अब कम पड़ने लगे हैं (लगभग 430 करोड़ पते ही बन सकते थे)।<br>
+- <b>IPv6:</b> नंबरों की कमी को पूरा करने के लिए यह नया और बहुत बड़ा सिस्टम बनाया गया है, जिसमें नंबर और अंग्रेजी के अक्षर दोनों होते हैं (जैसे <code>2401:4900:1c2a::1</code>)। इसके पते इतने ज़्यादा हैं कि दुनिया के हर रेत के कण को भी एक अलग IP दिया जा सकता है।<br><br>
+
+        <b>IP (Internet Protocol) Address दो तरह के होते हैं:</b><br>
+        <b>A. Private IP vs Public IP (असली खेल यहीं होता है):</b><br>
+- <b>Private IP Address (घर के अंदर का कमरा नंबर):</b> जब आप घर के Wi-Fi से जुड़ते हैं, तो आपका राउटर आपके मोबाइल को <code>192.168.1.2</code> और लैपटॉप को <code>192.168.1.3</code> देता है। यह नंबर केवल आपके घर के अंदर चलता है। दुनिया में लाखों घरों के अंदर यही <code>192.168.1.2</code> चल रहा है।<br>
+- <b>Public IP Address (आपकी पूरी बिल्डिंग का मेन एड्रेस):</b> आपकी इंटरनेट कंपनी (Jio, Airtel) आपके राउटर को एक यूनिक Public IP देती है (जैसे <code>49.36.120.45</code>)। जब आप Google खोलते हैं, तो घर के अंदर के सभी डिवाइस इसी एक Public IP के ज़रिए बाहर की दुनिया से बात करते हैं।<br><br>
+
+        <b>B. IPv4 की बनावट क्या होती है?</b><br>
+- IPv4 का पूरा नाम Internet Protocol Version 4 है।<br>
+- यह 32-bit का नंबर होता है, जिसे 4 हिस्सों (Octets) में बांटा जाता है और बीच में डॉट (<code>.</code>) लगाया जाता है—जैसे: <code>192.168.1.10</code>।<br>
+- हर हिस्से में <code>0</code> से लेकर <code>255</code> तक ही कोई नंबर हो सकता है। (अगर कहीं <code>192.168.300.5</code> लिखा हो, तो वह गलत IP है क्योंकि 255 से बड़ा नंबर नहीं हो सकता)।<br>
+- <b><code>169.254.x.x</code> (APIPA) — इंटरव्यू का सबसे मशहूर सवाल:</b> कभी-कभी जब राउटर खराब होता है या Wi-Fi से IP नहीं मिल पाता, तो Windows अपने आप लैपटॉप को <code>169.254...</code> से शुरू होने वाला एक नकली IP दे देता है। <b>मतलब:</b> अगर <code>ipconfig</code> में <code>169.254...</code> दिखे, तो तुरंत समझ जाइए कि लैपटॉप को राउटर से कनेक्शन (DHCP) नहीं मिल रहा है और इंटरनेट नहीं चलेगा!<br><br>
+
+        <b>3. Subnet Mask (आपकी कॉलोनी या पिनकोड की पहचान)</b><br>
+        मान लीजिए आपका पता है: मकान नंबर 15, गली नंबर 4, कतरास बाजार। इसमें "मकान नंबर 15" आपका IP Address है, और "कतरास बाजार (कॉलोनी)" आपका Subnet Mask (जैसे <code>255.255.255.0</code>) है।<br>
+- <b>यह क्या करता है?</b> यह कंप्यूटर को बताता है कि कौन-सा डिवाइस आपके अपने घर/ऑफिस के लोकल नेटवर्क में है, और कौन-सा डिवाइस बाहर की दुनिया (इंटरनेट) में है।<br>
+- जब भी आप IP Address देखते हैं, उसके ठीक नीचे Subnet Mask लिखा होता है—आमतौर पर <code>255.255.255.0</code>।<br><br>
+
+        <b>"सबनेट मास्क एक डिवाइडर की तरह काम करता है"</b><br>
+        इस बात को समझने के लिए सबसे पहले यह सोचिए कि कंप्यूटर या राउटर के पास कोई आँख नहीं होती कि वह नंबर को देखकर खुद समझ जाए कि इसमें से कॉलोनी का नाम कौन-सा है और मकान नंबर कौन-सा है। कंप्यूटर को सिर्फ़ एक 4-हिस्सों वाला नंबर दिखता है: <code>192.168.1.10</code>। अब राउटर को यह कैसे पता चले कि इस नंबर में कहाँ तक कॉलोनी का नाम (Network ID) है और कहाँ से मकान का नंबर (Host ID) शुरू हो रहा है? यहीं पर Subnet Mask एक लकीर (Divider) खींचने का काम करता है।<br><br>
+
+        <b>लकीर खींचने का नियम:</b><br>
+- <b>IP Address:</b> <code>192 . 168 . 1 . 10</code><br>
+- <b>Subnet Mask:</b> <code>255 . 255 . 255 . 0</code><br>
+- जहाँ-जहाँ नीचे <code>255</code> लिखा है, उसके ऊपर वाले हिस्से को लॉक (Lock) कर दो — यानी <code>192.168.1</code> तक एक दीवार खींच दो। यह हिस्सा कॉलोनी (Network) बन गया।<br>
+- जहाँ नीचे <code>0</code> लिखा है, उसके ऊपर वाले हिस्से (<code>.10</code>) को खुला (Open) छोड़ दो — यह हिस्सा कमरा/मकान नंबर (Device) बन गया।<br>
+- बीच की यह लकीर (<code>192.168.1 | 10</code>) ही डिवाइडर है!<br><br>
+
+        <b>अगर यह डिवाइडर न हो तो क्या होगा? (असली काम):</b><br>
+        मान लीजिए आपके ऑफिस में कंप्यूटर A (<code>192.168.1.10</code>) को किसी दूसरे कंप्यूटर को एक फाइल भेजनी है। राउटर के सामने दो रास्ते हैं:<br>
+- <b>रास्ता 1 (लोकल ऑफिस के अंदर):</b> फाइल को सीधे बगल वाले कंप्यूटर को दे दो (इंटरनेट पर बाहर मत भेजो)।<br>
+- <b>रास्ता 2 (बाहर की दुनिया / इंटरनेट):</b> फाइल को बाहर इंटरनेट के रास्ते दूसरे शहर या सर्वर पर भेजो।<br>
+        &nbsp;&nbsp;• <b>कंप्यूटर B (<code>192.168.1.25</code>) को:</b> डिवाइडर के बाईं तरफ का हिस्सा मैच करेगा: मेरा <code>192.168.1</code> है, और सामने वाले का भी <code>192.168.1</code> है। राउटर कहेगा: <i>"दोनों एक ही कॉलोनी के हैं!"</i> वह डेटा को ऑफिस के अंदर ही भेज देगा।<br>
+        &nbsp;&nbsp;• <b>कंप्यूटर C (<code>192.168.5.25</code>) को:</b> डिवाइडर के बाईं तरफ का हिस्सा मैच करेगा: मेरा <code>192.168.1</code> है, लेकिन सामने वाले का <code>192.168.5</code> है (अंतर आ गया)। राउटर कहेगा: <i>"यह दूसरी कॉलोनी का है!"</i> वह डेटा को मेन गेट (Default Gateway) से बाहर भेज देगा।<br><br>
+
+        <b>डेटा को बाहर इंटरनेट पर न भेजकर लोकल (अपनी कॉलोनी) में ही रखने के 4 असली फ़ायदे:</b><br>
+1. <b>बिजली की रफ़्तार (Ultra-Fast Speed — बिना इंटरनेट के):</b> जब डेटा आपके घर या ऑफिस के अंदर ही एक कंप्यूटर से दूसरे कंप्यूटर (या नेटवर्क प्रिंटर) पर जाता है, तो उसकी स्पीड 100 Mbps से 1,000 Mbps (1 Gbps) तक होती है। एक 5 GB की भारी फ़िल्म या फ़ोल्डर सेकंडों में ट्रांसफर हो जाएगा। <i>(अगर बाहर इंटरनेट पर जाता तो: पहले आपकी फ़ाइल आपके राउटर से निकलकर Jio/Airtel के टावर या सर्वर तक जाती, और फिर घूमकर वापस आपके बगल वाले कंप्यूटर पर आती। इसमें घंटों लग जाते!)</i><br>
+2. <b>इंटरनेट डेटा (MB/GB) की ज़ीरो बर्बादी (Zero Data Cost):</b> जब सबनेट मास्क पहचान लेता है कि यह "अपनी ही कॉलोनी" का मामला है, तो आपका एक भी MB मोबाइल या ब्रॉडबैंड डेटा खर्च नहीं होता। यहाँ तक कि अगर आपके राउटर का मेन इंटरनेट (रिचार्ज या फाइबर) बंद भी हो जाए, तब भी आपके ऑफिस के सभी कंप्यूटर आपस में फ़ाइल शेयर कर पाएंगे और प्रिंटर से प्रिंट निकाल पाएंगे।<br>
+3. <b>पूरी सुरक्षा और प्राइवेसी (Security & Privacy):</b> कंपनियों में HR की सैलरी शीट, अकाउंट्स की फ़ाइलें, या CCTV कैमरे की फुटेज एक कंप्यूटर से दूसरे कंप्यूटर पर जाती हैं। सबनेट मास्क की वजह से यह डेटा ऑफिस की चारदीवारी के बाहर (पब्लिक इंटरनेट पर) कभी नहीं निकलता, जिससे हैकर्स इसे बीच में चुरा नहीं सकते।<br>
+4. <b>मेन गेट (Router) पर ट्रैफ़िक जाम नहीं होता:</b> सोचिए अगर आपको अपने घर के अंदर ही भाई को एक गिलास पानी देना है, और आप पहले घर के मेन गेट से बाहर सड़क पर जाकर घूमकर आएं—तो मेन गेट पर बेवजह भीड़ लगेगी। सबनेट मास्क राउटर के मेन गेट (Default Gateway) को खाली रखता है, ताकि बाहर जाने वाला ज़रूरी काम (जैसे YouTube, Zoom कॉल, या ईमेल) बिना रुके तेज़ी से चलता रहे।<br><br>
+
+        <b>Private IP Classes और Network Size:</b><br>
+- <b>Chhota Office / Ghar (Class C):</b> <code>192.168.0.0</code> se <code>192.168.255.255</code> | Subnet Mask: <code>255.255.255.0</code> (1 Zero) | <b>254 computers</b><br>
+- <b>Badi Company / Campus (Class B):</b> <code>172.16.0.0</code> se <code>172.31.255.255</code> | Subnet Mask: <code>255.255.0.0</code> (2 Zero) | <b>65,534 computers</b> (256 × 256 - 2)<br>
+- <b>Bahut Bada Enterprise / MNC (Class A):</b> <code>10.0.0.0</code> se <code>10.255.255.255</code> | Subnet Mask: <code>255.0.0.0</code> (3 Zero) | <b>1.67 Crore computers</b> (256 × 256 × 256 - 2)<br><br>
+
+        <b>भाग 3: दो सबसे ज़रूरी कमांड (<code>ipconfig</code> और <code>ping</code>)</b><br>
+        जब आप Terminal या CMD खोलते हैं, तो ये दो कमांड आपके सबसे बड़े हथियार होते हैं:<br>
+1. <b><code>ipconfig</code> (अपने नेटवर्क की कुंडली निकालना):</b><br>
+        &nbsp;&nbsp;- <i>मतलब:</i> IP Configuration (आईपी की जानकारी)।<br>
+        &nbsp;&nbsp;- <i>क्या करता है:</i> जब आप काले डिब्बे (CMD) में <code>ipconfig</code> लिखकर Enter दबाते हैं, तो कंप्यूटर तुरंत बता देता है कि अभी मेरा IPv4 Address क्या है, Subnet Mask क्या है, और राउटर (Default Gateway) का पता क्या है।<br>
+        &nbsp;&nbsp;- <i>प्रो टिप:</i> अगर आप <code>ipconfig /all</code> लिखेंगे, तो यह IP के साथ-साथ आपका MAC Address और DNS भी दिखा देगा—वो भी बिना Control Panel में 7 बार क्लिक किए!<br>
+2. <b><code>ping</code> (दरवाज़ा खटखटाकर पूछना: "क्या आप ज़िंदा हैं?"):</b><br>
+        &nbsp;&nbsp;- <i>(नोट: आपने "पीएनजी" लिखा था, नेटवर्किंग में उसे PING कहते हैं—PNG एक फोटो फ़ाइल होती है)</i>।<br>
+        &nbsp;&nbsp;- <i>मतलब:</i> यह पनडुब्बी (Submarine) की सोनार आवाज़ से लिया गया शब्द है, जहाँ एक सिग्नल भेजकर वापस आने का इंतज़ार किया जाता है।<br>
+        &nbsp;&nbsp;- <i>क्या करता है:</i> मान लीजिए आपका इंटरनेट नहीं चल रहा। आप CMD में लिखते हैं: <code>ping google.com</code><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• कंप्यूटर Google के दरवाज़े पर 4 छोटे सिग्नल (Packets) भेजता है।<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• अगर उधर से जवाब आ गया (<code>Reply from...</code>), तो समझ जाइए कि आपका इंटरनेट बिल्कुल ठीक है, दिक्कत सिर्फ़ ब्राउज़र में है।<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• अगर लिखकर आया <code>Request timed out</code>, तो समझ जाइए कि रास्ता बंद है और इंटरनेट नहीं आ रहा।<br><br>
+
+        <b>एक नज़र में पूरा निचोड़ (Memory Map):</b><br>
+- <b>Layer 1 (तार/सिग्नल):</b> केबल और Wi-Fi तरंगें।<br>
+- <b>Layer 2 (MAC Address):</b> मशीन का पक्का आधार नंबर (सिर्फ़ लोकल नेटवर्क में काम आता है)।<br>
+- <b>Layer 3 (IP Address):</b> नेटवर्क पर अस्थायी पता (दुनिया से जुड़ने के लिए)।<br>
+- <b>Subnet Mask (<code>255.255.255.0</code>):</b> यह तय करता है कि कौन-सा कंप्यूटर अपने ही ऑफिस का है और कौन-सा बाहर का।<br>
+- <b>Default Gateway (<code>192.168.1.1</code> — बिल्डिंग का मेन गेट):</b> जब आपको YouTube चलाना होता है, तो आपका डेटा इस मेन गेट (राउटर) से बाहर निकलता है।<br><br>
+
+        <b>Troubleshooting (<code>ipconfig</code> देखकर समस्या पहचानें):</b><br>
+- <b><code>Media State: Media disconnected</code></b> → <i>असली समस्या:</i> तार (Ethernet) नहीं लगा है या Wi-Fi बंद है (Layer 1 इश्यू)। → <i>फिक्स:</i> केबल चेक करें या Wi-Fi कनेक्ट करें।<br>
+- <b><code>IPv4 Address: 169.254.x.x</code></b> → <i>असली समस्या:</i> राउटर से संपर्क टूट गया है, कंप्यूटर ने खुद ही नकली IP बना लिया है। → <i>फिक्स:</i> Wi-Fi Disconnect करके दोबारा Connect करें, या राउटर रीस्टार्ट करें।<br>
+- <b>IPv4 सही है (<code>192.168.1.5</code>), पर Default Gateway खाली है</b> → <i>असली समस्या:</i> कंप्यूटर को नंबर तो मिला, पर मेन गेट (Router) का रास्ता नहीं पता। → <i>फिक्स:</i> CMD में <code>ipconfig /release</code> और फिर <code>ipconfig /renew</code> चलाएं।
+    `
+            },
+
+            {
+                question: "Win + X दबाने पर जो Power User Menu खुलता है, उसमें Command Prompt (CMD), PowerShell और Terminal क्या होते हैं? इन्हें कैसे खोलते हैं, GUI और CLI में क्या अंतर है, इनकी ज़रूरत क्यों पड़ती है, और L1/L2 IT Support में हम इनसे क्या-क्या समस्याएं ठीक करते हैं?",
+                answer: `
+        <b>1. GUI (Graphical User Interface) क्या है? और माउस से क्लिक करने को GUI क्यों कहते हैं?</b><br>
+        GUI का पूरा नाम है: <b>Graphical User Interface (ग्राफिकल यूज़र इंटरफ़ेस)</b>।<br>
+- <b>Graphic (ग्राफ़िक):</b> यानी तस्वीर, आइकन (Icon), बटन, फ़ोल्डर, विंडो।<br>
+- <b>User Interface:</b> यानी वह ज़रिया जिससे आप (User) और कंप्यूटर (Machine) आपस में बात करते हैं।<br><br>
+        <b>इसे एक रेस्टोरेंट के उदाहरण से समझें:</b><br>
+        जब आप किसी रेस्टोरेंट में जाते हैं, तो आपको एक <b>फोटो वाला मेन्यू कार्ड</b> मिलता है। उसमें बर्गर की फोटो बनी है, नीचे कीमत लिखी है। आप बस उस फोटो पर उंगली रखते हैं (Click करते हैं) और वेटर समझ जाता है कि आपको बर्गर चाहिए। आपको किचन में जाकर यह बताने की ज़रूरत नहीं कि ब्रेड कैसे सेकनी है या मसाला कितना डालना है।<br><br>
+        कंप्यूटर में भी ठीक यही होता है:<br>
+- जब आप <b>Recycle Bin</b> के आइकन पर डबल-क्लिक करते हैं, या <b>Settings</b> में जाकर Wi-Fi का बटन ऑन करते हैं, या <b>Device Manager</b> खोलकर किसी ड्राइवर पर Right-click करके "Update" दबाते हैं—तो आप <b>तस्वीरों और बटनों (Graphics)</b> के ज़रिए कंप्यूटर से बात कर रहे हैं।<br>
+- इसलिए, स्क्रीन पर दिखने वाली चीज़ों (Icons, Buttons, Menus) पर माउस से क्लिक करके जो भी काम किया जाता है, उसे <b>GUI</b> कहते हैं। इसे आम लोगों के लिए बनाया गया है ताकि किसी को कोडिंग या कमांड याद न रखनी पड़े।<br><br>
+
+        <b>2. जब सारा काम GUI (Settings, Device Manager, Task Manager) से हो ही जाता है, तो CLI (कमांड) की ज़रूरत क्यों पड़ी?</b><br>
+        यह सबसे बेहतरीन सवाल है। इसके <b>4 असली कारण</b> हैं, जो आपको L1/L2 सपोर्ट में रोज़ देखने को मिलेंगे:<br>
+1. <b>जब GUI खुद बीमार पड़ जाए (Hang या Crash):</b><br>
+        मान लीजिए यूज़र का कंप्यूटर इतना हैंग हो गया है कि माउस का कर्सर ही नहीं हिल रहा, या Start मेन्यू और Settings खुल ही नहीं रहे, या स्क्रीन काली पड़ गई है। ऐसे में आप Settings या Task Manager खोल ही नहीं पाएंगे! तब सिर्फ़ कीबोर्ड से <b>CLI (कमांड)</b> ही काम आता है।<br>
+2. <b>स्पीड और शॉर्टकट (10 क्लिक बनाम 1 कमांड):</b><br>
+        अगर आपको किसी का IP Address, MAC Address और DNS चेक करना है, तो GUI में आपको Control Panel → Network → Adapter Settings → Status → Details में जाना होगा (लगभग 6-7 क्लिक)। वहीं CLI में सिर्फ़ <code>ipconfig /all</code> लिखते ही 1 सेकंड में सारी कुंडली सामने आ जाती है।<br>
+3. <b>गहराई वाले काम (जो बटन से नहीं हो सकते):</b><br>
+        Microsoft ने हर काम के लिए बटन नहीं बनाया है। जैसे—Windows की टूटी हुई अंदरूनी सिस्टम फाइलों को रिपेयर करना (<code>sfc /scannow</code>) या DNS का पुराना कचरा साफ़ करना (<code>ipconfig /flushdns</code>)। इनके लिए Settings में कोई बटन ही नहीं है, ये सिर्फ़ कमांड से ही होते हैं।<br>
+4. <b>एक साथ कई काम या रिमोट काम (Bulk & Automation):</b><br>
+        GUI से आप एक बार में एक ही कंप्यूटर पर क्लिक कर सकते हैं। लेकिन PowerShell (CLI) से एक IT इंजीनियर अपनी कुर्सी पर बैठे-बैठे एक ही कमांड चलाकर ऑफिस के 100 कंप्यूटरों में एक साथ कोई सॉफ्टवेयर इंस्टॉल कर सकता है या पासवर्ड रीसेट कर सकता है।<br><br>
+
+        <b>3. Command Prompt (CMD), PowerShell और Windows Terminal में क्या फर्क है? (और इन्हें कैसे खोलते हैं?)</b><br>
+        जब हम <b>Win + X</b> दबाते हैं, तो हमें ये तीनों विकल्प मिलते हैं:<br>
+- <b>Command Prompt (CMD) — पुराना और सीधा नौकर:</b><br>
+        &nbsp;&nbsp;- <i>क्या है:</i> यह काला डिब्बा (Black Screen) है जो पुराने ज़माने से चला आ रहा है। यह छोटे-मोटे, सीधे-सादे ऑर्डर मानता है—जैसे इंटरनेट चेक करना (<code>ping</code>), IP एड्रेस देखना (<code>ipconfig</code>), या टूटी हुई Windows फाइलें रिपेयर करना (<code>sfc /scannow</code>)। रोज़मर्रा के बेसिक L1 ट्रबलशूटिंग में इसका सबसे ज़्यादा यूज़ होता है।<br>
+        &nbsp;&nbsp;- <i>कैसे खोलें:</i> <code>Win + R</code> दबाकर <code>cmd</code> लिखें और Enter दबाएं (Admin मोड में खोलने के लिए <code>Ctrl + Shift + Enter</code> दबाएं), या Start मेन्यू में <b>cmd</b> टाइप करके <b>Run as administrator</b> पर क्लिक करें।<br>
+- <b>PowerShell — मॉडर्न और ताकतवर इंजीनियर:</b><br>
+        &nbsp;&nbsp;- <i>क्या है:</i> यह नीला या काला डिब्बा है जो CMD का बड़ा भाई (Advanced version) है। जो काम CMD नहीं कर सकता, वह PowerShell कर सकता है—जैसे Office 365 के यूज़र मैनेज करना, Active Directory के पासवर्ड रीसेट करना, या एक साथ 50 कंप्यूटरों में कोई सॉफ्टवेयर इंस्टॉल करना। यह L2 और सिस्टम एडमिन के एडवांस्ड कामों के लिए यूज़ होता है।<br>
+        &nbsp;&nbsp;- <i>कैसे खोलें:</i> <code>Win + R</code> दबाकर <code>powershell</code> लिखें और Enter दबाएं (Admin मोड के लिए <code>Ctrl + Shift + Enter</code> दबाएं), या Windows 10 में <code>Win + X</code> दबाकर सीधा <b>Windows PowerShell (Admin)</b> पर क्लिक करें।<br>
+- <b>Windows Terminal — एक ही घर में दोनों कमरे:</b><br>
+        &nbsp;&nbsp;- <i>क्या है:</i> Windows 11 में Microsoft ने इन दोनों को एक ही ऐप के अंदर डाल दिया है, जिसका नाम <b>Terminal</b> रखा है। जैसे Chrome ब्राउज़र में अलग-अलग टैब खुलते हैं, वैसे ही Terminal के अंदर आप एक टैब में CMD और दूसरे टैब में PowerShell खोल सकते हैं। <i>(Note: L1/L2 सपोर्ट में जब भी इसे खोलते हैं, तो हमेशा <b>Terminal (Admin)</b> ही खोलते हैं ताकि हमें पूरा अधिकार मिले)</i>।<br>
+        &nbsp;&nbsp;- <i>कैसे खोलें:</i> Windows 11 में <code>Win + X</code> दबाएं और <b>Terminal (Admin)</b> पर क्लिक करें (या कीबोर्ड से <code>Win + X</code> के बाद <code>A</code> दबाएं), या <code>Win + R</code> दबाकर <code>wt</code> लिखें और Enter दबाएं।<br><br>
+
+        <b>4. इसका नाम "Terminal" क्यों रखा गया है? (असली मतलब)</b><br>
+        "Terminal" शब्द का अंग्रेजी में मतलब होता है <b>अंतिम छोर (End Point)</b>—जैसे बस टर्मिनल या एयरपोर्ट टर्मिनल, जहाँ से यात्रा शुरू या खत्म होती है।<br><br>
+        पुराने ज़माने (1970-80 के दशक) में कंप्यूटर एक पूरे कमरे जितने बड़े होते थे (जिन्हें Mainframe कहते थे)। उस बड़े कंप्यूटर में कोई स्क्रीन या कीबोर्ड नहीं लगा होता था। उससे तारों के ज़रिए अलग-अलग कमरों में सिर्फ़ एक <b>स्क्रीन और कीबोर्ड</b> जोड़ दिया जाता था। चूँकि वह स्क्रीन और कीबोर्ड उस बड़े कंप्यूटर के तार का <b>आखिरी छोर (End point)</b> होते थे, इसलिए उसे <b>Terminal</b> कहा जाता था। यूज़र वहां बैठकर टाइप करता था और मुख्य कंप्यूटर अंदर काम करता था।<br><br>
+        आज भी नाम वही चल रहा है! <b>Windows Terminal</b> एक ऐसा दरवाज़ा (या खिड़की) है जहाँ आप बैठकर टाइप करते हैं, और अंदर बैठा Windows का दिमाग (Operating System) आपके ऑर्डर पूरे करता है। चूँकि यह एक ही खिड़की है जहाँ से आप CMD, PowerShell और अन्य कमांड टूल्स तक पहुँच सकते हैं, इसलिए Microsoft ने इसका नाम <b>Terminal</b> रखा है।<br><br>
+
+        <b>5. क्या CLI (CMD/PowerShell) से हार्डवेयर और सॉफ्टवेयर दोनों ठीक होते हैं?</b><br>
+        इसका सीधा जवाब है: <b>हाँ, दोनों!</b> (लेकिन थोड़ा अलग तरीके से):<br>
+- <b>सॉफ्टवेयर इश्यूज (सीधा इलाज):</b><br>
+        Windows की खराब फाइलें ठीक करना, अटका हुआ सॉफ्टवेयर बंद करना (<code>taskkill</code>), नेटवर्क सेटिंग रीसेट करना, या ऑफिस की पॉलिसी अपडेट करना (<code>gpupdate</code>)—ये सब सीधे CLI से ठीक होते हैं।<br>
+- <b>हार्डवेयर इश्यूज (जाँच और ड्राइवर का इलाज):</b><br>
+        ध्यान रहे, अगर किसी की RAM जल गई है या कीबोर्ड पर चाय गिर गई है, तो कोई भी कमांड उसे भौतिक रूप से (Physically) नहीं जोड़ सकता—उसके लिए तो स्क्रूड्राइवर ही लगेगा।<br>
+        <b>लेकिन</b>, हार्डवेयर से जुड़ी बाकी सारी चीज़ें CLI से चेक और ठीक होती हैं:<br>
+        &nbsp;&nbsp;- हार्ड डिस्क या SSD में कोई खराबी (Bad Sectors) आ जाए, तो <code>chkdsk</code> कमांड उसे स्कैन करके ठीक करता है।<br>
+        &nbsp;&nbsp;- लैपटॉप की बैटरी की सेहत (Battery Health) कितनी बची है, यह <code>powercfg /batteryreport</code> कमांड बताता है।<br>
+        &nbsp;&nbsp;- हार्डवेयर का सीरियल नंबर, तापमान, या कौन-सा ड्राइवर अटका है—यह सब PowerShell के कमांड से चेक और रीस्टार्ट किया जा सकता है।<br><br>
+
+        <b>एक लाइन में पूरा निचोड़ (हमेशा याद रखने के लिए):</b><br>
+- <b>GUI (माउस):</b> रेस्टोरेंट का फोटो वाला मेन्यू—आसान है, सुंदर है, पर हर चीज़ मेन्यू में नहीं होती।<br>
+- <b>CLI (कमांड):</b> सीधे शेफ (Chef) को किचन में ऑर्डर देना—तेज़ है, ताकतवर है, और तब भी काम करता है जब मेन्यू कार्ड फट जाए (Windows हैंग हो जाए)।<br><br>
+
+        <b>6. L1 और L2 सपोर्ट की 5 बड़ी समस्याएं और उनके असली कमांड्स</b><br>
+        <i>(ज़रुरी बात: इनमें से कई काम—जैसे IP देखना, नेटवर्क रीसेट करना, या ऐप बंद करना—<b>GUI (Settings, Network Connections, Task Manager) से भी किए जा सकते हैं।</b> लेकिन जब GUI अटक जाए, काम न करे, या हमें 10 क्लिक बचाने के लिए तेज़ और गहराई वाला इलाज चाहिए हो, तब हम नीचे दिए गए CLI कमांड्स का इस्तेमाल करते हैं):</i><br>
+1. <b>नेटवर्क / इंटरनेट / VPN की समस्या:</b><br>
+        &nbsp;&nbsp;- <i>समस्या:</i> "Wi-Fi जुड़ा है पर Google नहीं खुल रहा या VPN कनेक्ट नहीं हो रहा।"<br>
+        &nbsp;&nbsp;- <i>GUI vs CLI:</i> GUI में Network Connections में जाकर Disable/Enable या Status से IP देखा जा सकता है, लेकिन जब सेटिंग्स काम न करें या DNS कचरा साफ़ करना हो तो ये कमांड चलाते हैं:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>ipconfig /all</code> → चेक करता है कि पीसी को सही IP Address मिला है या नहीं।<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>ping google.com</code> → इंटरनेट को घंटी मारकर देखता है कि कनेक्शन आ रहा है या बीच में टूट रहा है।<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>ipconfig /flushdns</code> → पुराने इंटरनेट पतों का जमा हुआ कचरा (DNS Cache) साफ़ करता है ताकि वेबसाइट तुरंत खुले।<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>netsh winsock reset</code> → अगर नेटवर्क की पूरी सेटिंग अटक गई है, तो उसे रीसेट करके नया जैसा कर देता है।<br>
+2. <b>Windows हैंग होना या सिस्टम फाइलें खराब होना:</b><br>
+        &nbsp;&nbsp;- <i>समस्या:</i> "लैपटॉप बहुत स्लो चल रहा है, Start मेन्यू नहीं खुल रहा, या Blue Screen आ रही है।"<br>
+        &nbsp;&nbsp;- <i>GUI vs CLI:</i> जब Start मेन्यू और Settings ही न खुलें तो GUI बेकार हो जाता है, और अंदरूनी सिस्टम फाइल रिपेयर करने का कोई बटन GUI में होता भी नहीं है:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>sfc /scannow</code> → Windows के डॉक्टर की तरह पूरे सिस्टम को स्कैन करके टूटी हुई अंदरूनी फाइलों को खुद रिपेयर करता है।<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>DISM /Online /Cleanup-Image /RestoreHealth</code> → अगर <code>sfc</code> से फाइल ठीक न हो, तो यह इंटरनेट (Microsoft सर्वर) से ताज़ा फाइलें डाउनलोड करके Windows की मरम्मत करता है।<br>
+3. <b>कंपनी की पॉलिसी या पासवर्ड अपडेट न होना:</b><br>
+        &nbsp;&nbsp;- <i>समस्या:</i> "ऑफिस का नया नियम या पासवर्ड अपडेट इस लैपटॉप पर लागू नहीं हो रहा।"<br>
+        &nbsp;&nbsp;- <i>GUI vs CLI:</i> GUI में इसके लिए लैपटॉप रीस्टार्ट करना पड़ता है या इंतज़ार करना पड़ता है, लेकिन कमांड से यह तुरंत हो जाता है:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>gpupdate /force</code> → लैपटॉप को ज़बरदस्ती कंपनी के मेन सर्वर (Active Directory) से जोड़कर तुरंत सारे नए नियम और पासवर्ड लागू कर देता है।<br>
+4. <b>सिस्टम की जानकारी निकालना (ServiceNow टिकट या वारंटी के लिए):</b><br>
+        &nbsp;&nbsp;- <i>समस्या:</i> "टिकट में भरने के लिए पीसी का असली नाम, यूज़र ID और पूरी डिटेल चाहिए।"<br>
+        &nbsp;&nbsp;- <i>GUI vs CLI:</i> यह जानकारी GUI में <i>Settings → System → About</i> से भी मिल जाती है, लेकिन जब Settings न खुले या एक ही स्क्रीन पर सारी डिटेल कॉपी करनी हो तो कमांड यूज़ करते हैं:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>hostname</code> → नेटवर्क में कंप्यूटर का असली नाम बताता है।<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>whoami</code> → बताता है कि अभी किस यूज़र की ID से लॉगिन है।<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>systeminfo</code> → पूरे पीसी की जन्मकुंडली (RAM, Windows वर्ज़न, मॉडल, आखिरी बूट टाइम) सामने रख देता है।<br>
+5. <b>अटके हुए सॉफ्टवेयर को ज़बरदस्ती बंद करना:</b><br>
+        &nbsp;&nbsp;- <i>समस्या:</i> "Chrome या कोई सॉफ्टवेयर पूरी तरह फ्रीज़ हो गया है और Task Manager से भी बंद नहीं हो रहा।"<br>
+        &nbsp;&nbsp;- <i>GUI vs CLI:</i> आम तौर पर इसे GUI में <b>Task Manager → End task</b> से बंद करते हैं, लेकिन जब Task Manager भी हैंग हो जाए या काम न करे, तब कमांड से जड़ से बंद करते हैं:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>taskkill /IM chrome.exe /F</code> → बिना कोई सवाल पूछे उस अटके हुए प्रोग्राम को ज़बरदस्ती (<code>/F</code>) बंद कर देता है।
+    `
+            },
+
+            {
+                question: "DHCP, DORA Process, APIPA (169.254.x.x), DNS, Nameservers क्या होते हैं? वेबसाइट का पुराना IP कैसे अटक जाता है और L1/L2 IT Support में इन्हें CMD कमांड्स से कैसे ठीक करते हैं?",
+                answer: `
+        इसे एक सीधी, जुड़ी हुई कहानी (एक ही फ्लो में) की तरह समझते हैं, ताकि आपको कहीं भी रुककर सोचना न पड़े और एक बार पढ़ते ही DHCP, DORA, APIPA, DNS, Nameserver और L1/L2 ट्रबलशूटिंग की पूरी पिक्चर दिमाग में बैठ जाए।<br><br>
+        कल्पना कीजिए कि आपका लैपटॉप एक मुसाफ़िर है जो इंटरनेट की दुनिया में सफ़र करना चाहता है। इस सफ़र के दो पड़ाव हैं:<br>
+1. <b>पहला पड़ाव (घर/ऑफिस के अंदर):</b> अपने राउटर से एंट्री पास (IP Address) लेना — यह काम <b>DHCP</b> करता है।<br>
+2. <b>दूसरा पड़ाव (बाहर की दुनिया में):</b> किसी वेबसाइट (<code>999moneysave.com</code> या <code>youtube.com</code>) का असली पता ढूँढना — यह काम <b>DNS</b> करता है।<br><br>
+
+        <b>पड़ाव 1: घर/ऑफिस के अंदर एंट्री लेना — DHCP (होटल का रिसेप्शनिस्ट)</b><br>
+        <b>DHCP (Dynamic Host Configuration Protocol)</b> आपके Wi-Fi राउटर के अंदर बैठा एक स्मार्ट रिसेप्शनिस्ट है।<br>
+        जब आप किसी होटल में जाते हैं, तो खुद जाकर किसी भी कमरे में नहीं घुसते; आप रिसेप्शन पर जाते हैं और वह आपको एक खाली कमरे की चाबी देता है। ठीक उसी तरह, जैसे ही आप अपना फ़ोन या लैपटॉप Wi-Fi से जोड़ते हैं, रिसेप्शनिस्ट (DHCP) आपको बिना किसी मैनुअल सेटिंग के <b>4 ज़रूरी चीज़ों का एक वेलकम पैक</b> दे देता है:<br>
+1. <b>IP Address (<code>192.168.1.5</code>):</b> आपके कमरे का नंबर (ताकि डेटा सही डिवाइस पर आए)।<br>
+2. <b>Subnet Mask (<code>255.255.255.0</code>):</b> आपकी कॉलोनी/बिल्डिंग की सीमा (यह बताने के लिए कि कौन अपना है और कौन बाहर का)।<br>
+3. <b>Default Gateway (<code>192.168.1.1</code>):</b> बिल्डिंग से बाहर इंटरनेट पर जाने का मेन गेट (राउटर का पता)।<br>
+4. <b>DNS Server (<code>8.8.8.8</code>):</b> बाहर की दुनिया की वेबसाइटों की फ़ोनबुक।<br>
+        <i>(इसे Dynamic इसलिए कहते हैं क्योंकि यह कमरा हमेशा के लिए नहीं मिलता, बल्कि कुछ घंटों के किराए/Lease पर मिलता है। आपके Wi-Fi बंद करते ही यह नंबर खाली होकर किसी दूसरे नए फ़ोन को दे दिया जाता है)।</i><br><br>
+
+        <b>यह वेलकम पैक मिलता कैसे है? — DORA Process (4 सेकंड की बातचीत)</b><br>
+        जब आप Wi-Fi ऑन करते हैं, तो आपके लैपटॉप और राउटर के बीच <b>D-O-R-A</b> नाम की 4 कदमों की बातचीत होती है:<br>
+1. <b>D — Discover (खोजना):</b> आपका लैपटॉप चिल्लाता है: <i>"हैलो! क्या यहाँ कोई रिसेप्शनिस्ट (DHCP) है जो मुझे कमरा (IP) दे सके?"</i><br>
+2. <b>O — Offer (प्रस्ताव देना):</b> राउटर जवाब देता है: <i>"हाँ मैं हूँ! मेरे पास <code>192.168.1.5</code> खाली है, लोगे?"</i><br>
+3. <b>R — Request (माँगना):</b> लैपटॉप कहता है: <i>"हाँ जी, यही नंबर पक्का कर दो!"</i><br>
+4. <b>A — Acknowledge (पक्की मुहर):</b> राउटर रजिस्टर में एंट्री करके मुहर लगा देता है: <i>"डन! अगले 24 घंटे के लिए यह नंबर तुम्हारा हुआ।"</i><br><br>
+
+        <b>अगर रिसेप्शनिस्ट (DHCP) जवाब न दे तो क्या होगा? — APIPA (<code>169.254.x.x</code>)</b><br>
+- <b>पूरा नाम:</b> Automatic Private IP Addressing।<br>
+- मान लीजिए राउटर खराब है या सिग्नल टूट गया है, और पहले कदम (Discover) के बाद किसी ने जवाब नहीं दिया।<br>
+- तब Windows हार मानकर सड़क पर खड़े रहने के बजाय खुद को एक इमरजेंसी वेटिंग नंबर दे देता है, जो हमेशा <code>169.254</code> से शुरू होता है (जैसे <code>169.254.12.45</code>)।<br>
+- <b>असली मतलब:</b> इस नंबर से आप बगल वाले कंप्यूटर से लोकल बात तो कर सकते हैं, <b>लेकिन बाहर का इंटरनेट (Google/YouTube) बिल्कुल नहीं चलेगा</b>, क्योंकि राउटर ने आपको कोई कमरा दिया ही नहीं है।<br><br>
+
+        <b>पड़ाव 2: बाहर की दुनिया की वेबसाइट खोलना — DNS (इंटरनेट की फ़ोनबुक)</b><br>
+        अब आपको राउटर से कमरा (<code>192.168.1.5</code>) मिल गया है और आप मेन गेट (Default Gateway) से बाहर इंटरनेट पर निकल चुके हैं। अब आप ब्राउज़र में टाइप करते हैं: <code>999moneysave.com</code>।<br>
+        यहाँ एक दिक्कत है: <b>कंप्यूटर और इंटरनेट अंग्रेजी के नाम नहीं समझते, वे सिर्फ़ IP Address (नंबर) समझते हैं</b> (जैसे <code>185.40.20.99</code>)। यहीं पर <b>DNS (Domain Name System)</b> काम आता है—यह ठीक आपके मोबाइल की Contact List (फ़ोनबुक) जैसा है।<br>
+1. आप अपने मोबाइल में दोस्त का नंबर याद नहीं रखते, बस "Rahul" सर्च करते हैं और फ़ोन खुद नंबर निकालकर कॉल मिला देता है।<br>
+2. वैसे ही, जब आप <code>999moneysave.com</code> लिखते हैं, तो आपका लैपटॉप तुरंत DNS Server से पूछता है: <i>"भाई, <code>999moneysave.com</code> का असली नंबर (IP Address) क्या है?"</i><br>
+3. DNS अपनी डायरी देखकर नंबर बताता है और वेबसाइट खुल जाती है।<br><br>
+
+        <b>वेबसाइट का IP पक्का होता है, फिर भी पुराना IP कैसे अटक जाता है?</b><br>
+        आपने बिल्कुल सही सोचा था कि वेबसाइट का IP बदलता नहीं (Static होता है), फिर भी कई बार वेबसाइट नहीं खुलती क्योंकि:<br>
+- <b>Server Migration (मकान बदलना):</b> मान लीजिए पहले आपकी वेबसाइट पुराने होस्टिंग सर्वर (<code>103.21.50.10</code>) पर थी, और बाद में आपने नई होस्टिंग ले ली (<code>185.40.20.99</code>)।<br>
+- <b>DNS Cache (पुरानी डायरी):</b> आपके लैपटॉप ने तेज़ी से काम करने के लिए पिछली बार वाला पुराना नंबर (<code>103.21.50.10</code>) अपनी लोकल मेमोरी (DNS Cache) में लिखकर रख लिया था। अब जब आप वेबसाइट खोलते हैं, तो लैपटॉप नए सर्वर पर जाने के बजाय बार-बार उसी पुराने बंद पड़े पते पर जाता है और "Site can't be reached" दिखने लगता है।<br>
+- <b>DNS Propagation:</b> नया डोमेन या होस्टिंग जोड़ने पर दुनिया भर के DNS सर्वरों (Jio, Airtel, Google) को नया पता अपडेट करने में कुछ घंटे लगते हैं।<br><br>
+
+        <b>Hosting, Domain और Nameserver का असली रिश्ता</b><br>
+- <b>Hosting Server (<code>185.40.20.99</code>):</b> यह वह ज़मीन/मकान है जहाँ आपकी वेबसाइट की असली फ़ाइलें (HTML, CSS, JS) रखी हैं।<br>
+- <b>Domain Name (<code>999moneysave.com</code>):</b> यह उस मकान के बाहर लगी नेमप्लेट है।<br>
+- <b>Nameservers (<code>ns1...</code>, <code>ns2...</code>) और A Record:</b> जब आप डोमेन में होस्टिंग कंपनी के Nameservers डालते हैं, तो आप इंटरनेट की फ़ोनबुक (DNS) में यह पक्की एंट्री लिखवा रहे होते हैं कि <i>"जो भी <code>999moneysave.com</code> लिखे, उसे सीधे इस Hosting IP पर भेज देना।"</i><br><br>
+
+        <b>पड़ाव 3: L1/L2 IT Support में इन सबका प्रैक्टिकल इलाज (Troubleshooting Cheat Sheet)</b><br>
+        जब भी कोई यूज़र कहे कि "इंटरनेट नहीं चल रहा" या "वेबसाइट नहीं खुल रही", तो CMD खोलकर सिर्फ़ ये 3 कदम चलाएं:<br>
+1. <b>समस्या क्या दिख रही है:</b> <code>ipconfig</code> में IP <code>169.254.x.x</code> (APIPA) दिख रहा है<br>
+        &nbsp;&nbsp;- <i>असली बीमारी क्या है:</i> रिसेप्शनिस्ट (DHCP) से संपर्क टूट गया है और नया IP नहीं मिल रहा।<br>
+        &nbsp;&nbsp;- <i>आपको CMD में कौन-सा कमांड चलाना है:</i><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>ipconfig /release</code> (पुराना नकली IP छोड़ें)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>ipconfig /renew</code> (राउटर से नया DORA प्रोसेस चलाकर ताज़ा IP लें)<br>
+2. <b>समस्या क्या दिख रही है:</b> बाकी इंटरनेट चल रहा है, पर कोई एक खास वेबसाइट नहीं खुल रही<br>
+        &nbsp;&nbsp;- <i>असली बीमारी क्या है:</i> लैपटॉप की पुरानी फ़ोनबुक (DNS Cache) में उस वेबसाइट का पुराना IP अटका है।<br>
+        &nbsp;&nbsp;- <i>आपको CMD में कौन-सा कमांड चलाना है:</i><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>ping website.com</code> (चेक करें कि कौन-सा IP आ रहा है)<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>ipconfig /flushdns</code> (पुरानी DNS डायरी साफ़ करके नया IP मँगवाएं)<br>
+3. <b>समस्या क्या दिख रही है:</b> चेक करना है कि वेबसाइट का असली सर्वर IP क्या आ रहा है<br>
+        &nbsp;&nbsp;- <i>असली बीमारी क्या है:</i> यह पता लगाना कि DNS सर्वर उस नाम के बदले कौन-सा IP दे रहा है।<br>
+        &nbsp;&nbsp;- <i>आपको CMD में कौन-सा कमांड चलाना है:</i><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;• <code>nslookup 999moneysave.com</code> (यह सीधे DNS सर्वर से पूछकर असली IP दिखा देगा)<br><br>
+
+        <b>10-सेकंड का फाइनल निचोड़</b><br>
+- <b>DHCP:</b> राउटर का रिसेप्शनिस्ट जो DORA प्रोसेस से आपको IP, Subnet, Gateway और DNS देता है।<br>
+- <b>APIPA (<code>169.254.x.x</code>):</b> जब DHCP फेल हो जाए, तो Windows द्वारा खुद को दिया गया बिना-इंटरनेट वाला इमरजेंसी नंबर।<br>
+- <b>DNS:</b> वेबसाइट के नाम (<code>999moneysave.com</code>) को उसके होस्टिंग सर्वर के असली IP Address में बदलने वाली फ़ोनबुक।
+    `
+            },
+
             {
                 question: "9. How do you uninstall software?",
                 answer: `
@@ -708,15 +1094,22 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
             It is the first thing that wakes up when you press power. It performs a <b>POST (Power-On Self-Test)</b> to check if the RAM, CPU, and Drive are working. If okay, it starts Windows.
         `
             },
+
             {
-                question: "11. What is Device Manager?",
+                question: "11. What is Device Manager and how do you use it?",
                 answer: `
-            Device Manager is a library of all hardware connected to the PC.<br><br>
-            <b>Key Functions:</b><br>
-            • <b>Driver Management:</b> Updating or rolling back hardware software.<br>
-            • <b>Troubleshooting:</b> A <b>Yellow Triangle</b> indicates a driver error.<br>
-            • <b>Access:</b> Press Win + R and type <code>devmgmt.msc</code>.
-        `
+        <b>Device Manager</b> is a tool that comes pre-installed with Windows. It is like a main register that shows all computer hardware parts connected to the computer (such as mouse, keyboard, printer, Wi-Fi, sound, and USB ports).<br><br>
+        When I have a hardware issue—like mouse, printer, or Wi-Fi is not working—this is the first tool I open (by pressing <code>Win + X</code> or running <code>devmgmt.msc</code>) after pressing Windows + R to check and fix the problem:<br><br>
+        <b>Things that we we check here:</b><br>
+        - <b>If I see a down arrow (↓) on the device</b> it simply means that device was accidentally turned off like Wi-Fi or webcam, I simply right-click and select <b>Enable device</b> to make it work properly.<br>
+- <b>If I see a yellow warning triangle (!) on the device</b> it simply means the small software (driver) needed to run that part is missing or corrupted, I simply right-click and select <b>Update driver to fix the issue</b>—If the issue persists, I can <b>Uninstall</b> it and restart the PC so Windows automatically installs a fresh driver to make it work properly.<br>
+- <b>If a device stopped working right after a Windows update</b> it simply means the new update isn't compatible with that part, I simply right-click the device, go to <b>Properties > Driver</b>, and click <b>Roll Back Driver</b> to bring back the previous working version.<br>
+          &nbsp;&nbsp;• <b>Red Cross (X):</b> Critical hardware error or system block.<br>
+
+- <b>If I plug in a device (like a USB keyboard or mouse) and it doesn't show up in Device Manager at all,</b> it means Windows either hasn't refreshed its hardware list yet or there is a physical connection issue. First, I click on any device in the Device Manager list and then click on <b>Action >and then click on  Scan for hardware changes</b> (You can also click on the magnifying glass icon for Scan for hardware changes). It will help to show that recently connected device so it starts working, and if it still doesn't appear, that proves the connected device is broken or faulty.<br>
+- <b>If everything looks completely clean with no warning icons</b> it simply means the software and drivers are totally fine, so I know the issue is likely physical damage like a broken cable, faulty port, or dead hardware.<br><br>
+<b>Key Advantage & Limitation:</b> The biggest advantage is that I can fix driver issues right from the screen without opening the PC, though it requires Admin rights and cannot repair physical wire or port damage.
+    `
             },
 
             {
@@ -1059,7 +1452,6 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
         `
             },
 
-
             {
                 question: "52. Difference between Windows Server and Client OS?",
                 answer: `
@@ -1139,7 +1531,6 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
             In a company, I don't let every PC update whenever it wants. We use a tool (like WSUS or SCCM) to test the updates first, and then "push" them to all computers at once. This ensures that every laptop in the office is safe from the latest viruses.
         `
             },
-
 
             {
                 question: "62. What is Office 365 (Microsoft 365)?",
@@ -1240,8 +1631,6 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
         `
             },
 
-
-            // --- Important Commands ---
             {
                 question: "74. Explain the 'ping' command.",
                 answer: `
@@ -1303,7 +1692,6 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
         `
             },
 
-            // --- Tools Commonly Asked ---
             {
                 question: "82. What are ServiceNow and Jira?",
                 answer: `
@@ -1326,36 +1714,79 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
             VPN (Virtual Private Network) tools create a <b>secure bridge</b> between a user's home internet and the office network.<br><br>
             When a user is working from home, they cannot see the office files or printers. Once they connect to the VPN, their computer acts as if it is plugged into the office wall, allowing them to work safely.
         `
+            },
+
+            {
+                question: "12. How do you decide between Windows Settings (Win + I) and Device Manager when a hardware issue comes up?",
+                answer: `
+        Whenever a hardware issue comes up, I first check <b>Windows Settings (<code>Win + I</code>)</b> because it is used to check basic, front-end settings like connections, power, and device toggles. If the issue is deeper (related to drivers or hardware detection), I go to <b>Device Manager</b>.<br><br>
+
+        <b>1. First, Check Windows Settings (<code>Win + I</code> > Bluetooth & devices) — What Users Say & How I Fix It:</b><br>
+        - <b>When a user says, "My Bluetooth mouse, keyboard, or headset is not connecting":</b> I open <b>Bluetooth & devices</b> and check if the main <b>Bluetooth</b> switch is turned <b>On</b>. If the device shows <i>"Paired"</i> or <i>"Not connected"</i>, I click the three dots (⋮) next to it, click <b>Remove device</b>, and then click <b>Add device > Bluetooth</b> to pair it fresh.<br>
+        - <b>When a user says, "My printer is connected, but nothing is printing":</b> I go to <b>Bluetooth & devices > Printers & scanners</b>, click on the printer, select <b>Open print queue</b>, and click <b>Cancel all</b> to clear stuck print jobs, then print a test page.<br>
+        - <b>When a user says, "My laptop touchpad is not working":</b> I go to <b>Bluetooth & devices > Touchpad</b> and check if the touchpad toggle switch was turned off by mistake, then turn it back <b>On</b>.<br>
+        - <b>When a user says, "My USB mouse or dongle keeps disconnecting every few minutes":</b> Windows cuts USB power to save battery. I search for <b>Edit power plan</b> in the Start menu > <b>Change advanced power settings > USB settings > USB selective suspend setting</b>, and set both <i>On battery</i> and <i>Plugged in</i> to <b>Disabled</b>.<br>
+
+        <b>2. Next, Check Device Manager (<code>Win + X</code>) — For Deeper Driver & Detection Issues:</b><br>
+        - <b>Device was turned off by mistake (Down Arrow ↓):</b> When a user says a part like Wi-Fi or camera is completely dead, I right-click it and select <b>Enable device</b>.<br>
+        - <b>Driver is missing or broken (Yellow Triangle !):</b> I right-click and select <b>Update driver</b>, or <b>Uninstall</b> it and restart the PC so Windows automatically installs a fresh driver.<br>
+        - <b>Stopped working after a Windows Update:</b> I right-click the device, go to <b>Properties > Driver</b>, and click <b>Roll Back Driver</b> to return to the old working version.<br>
+        - <b>Device is plugged in, but not showing up at all:</b> I click on any device in the list and select <b>Action > Scan for hardware changes</b> to force Windows to detect it (if it still doesn't show up, it confirms physical damage).
+
+         - <b>When a user says, "Everything is connected, but the device still isn't working properly":</b> I press <code>Win + R</code>, type <code>msdt.exe -id DeviceDiagnostic</code>, and run Windows' built-in <b>Hardware Troubleshooter</b> so it automatically finds and fixes the problem.<br>
+
+         केबल बिल्कुल सही लगी होती है, Bluetooth भी जुड़ा होता है, और Device Manager में कोई पीला निशान या एरर भी नहीं दिखता, लेकिन फिर भी माउस, कीबोर्ड, साउंड या प्रिंटर सही से काम नहीं कर रहा होता (जैसे अटक-अटक कर चलना या रिस्पॉन्स न देना)।
+
+ऐसी हालत में हम इंसान को नहीं पता चलता कि अंदर कौन-सी छोटी सी सेटिंग या पोर्ट अटका हुआ है। तो हम Windows से खुद ही कहते हैं कि "भाई, तू खुद चेक कर ले और ठीक कर दे।"
+
+Windows के अंदर पहले से एक ऑटोमैटिक रिपेयर टूल डाला गया है, जिसका नाम है Hardware Troubleshooter।
+"एम-एस-डी-टी डॉट ई-एक्स-ई, डैश आई-डी, डिवाइस डायग्नोस्टिक"
+
+(M-S-D-T dot E-X-E, dash I-D, Device Diagnostic)
+msdt stands for microsoft diagnostic tool
+सबसे पहले Windows Settings (Win + I): ऊपर की चीज़ें चेक करने के लिए (जैसे Bluetooth On है या नहीं, पेयरिंग अटकी है, या प्रिंटर का Queue भरा है)।
+
+दूसरे नंबर पर Device Manager (Win + X): अंदर की चीज़ें चेक करने के लिए (जैसे डिवाइस डिसेबल है, पीला एरर है, या ड्राइवर अपडेट/रोल बैक करना है)।
+
+तीसरे (सबसे आख़िरी) नंबर पर Microsoft Diagnostic Tool / Hardware Troubleshooter (msdt.exe -id DeviceDiagnostic): जब ऊपर की दोनों जगह सब कुछ साफ़-सुथरा दिखे (कोई एरर नहीं, सब Connected है), फिर भी डिवाइस ठीक से काम न करे, तब हम सबसे आख़िर में इस ऑटोमैटिक टूल को चलाते हैं ताकि Windows खुद अंदर की कोई छिपी हुई गड़बड़ स्कैन करके रीसेट कर दे।
+
+(और अगर इसके बाद भी ठीक न हो, तो पक्का हो जाता है कि हार्डवेयर या केबल फिजिकली खराब है, और हम ऑन-साइट टेक्नीशियन को टिकट दे देते हैं।)
+    `
             }
-
-
         ];
 
-
-
         const issueSolutions = {
-
             hardware_common: {
                 title: "Common Approach for Hardware Issues (L1)",
                 content: `
         <div class="mb-3">
-            When a user called for a hardware problem, first I used to calm the user down, ask a few basic questions, and guide them step-by-step:
+            When a user calls for a hardware problem, first I calm the user down, ask a few basic questions, and guide them step-by-step:
         </div>
         <div class="ps-2">
-            - <b>Step 1 (Ask & Check LED):</b> First of all, I used to ask: <i>"May I know how long you have been facing this issue? Did the device fall down, or did any liquid spill on it? Could you please check if the LED light is blinking or glowing on the device?"</i><br><br>
+- <b>Step 1 (Ask & Check LED):</b> First, I ask: <i>"May I know how long you have been facing this issue? Did the device fall down, or did any liquid spill on it? Could you please check if the LED light is blinking or glowing on the device?"</i><br><br>
 
-            - <b>Step 2 (Unplug, Clean & Re-plug):</b> Then I used to guide them: <i>"Please unplug the cable from the laptop, remove any dust from the port, and plug it firmly into a different USB or power port."</i><br><br>
+- <b>Step 2 (Unplug, Clean & Re-plug):</b> Then I guide them: <i>"Please unplug the cable from the laptop, remove any dust from the port, and plug it firmly into a different USB or power port."</i><br><br>
 
-            - <b>Step 3 (Take Remote & Check Device Manager / Windows Settings):</b><br>
-            If the issue still persisted, I used to take remote control using <b>Microsoft Quick Assist</b> (by sharing a 6-digit security code with the user).<br>
-            • <b>In Device Manager:</b> I used to press <code>Win + X</code>, open <b>Device Manager</b>, and check if the device was listed or showing a <b>yellow exclamation mark (driver error)</b>. If there was an error, I right-clicked and selected <b>Update driver</b> or <b>Uninstall device</b> and restarted the PC.<br>
-            • <b>In Windows Settings:</b> I used to open <b>Settings (<code>Win + I</code>) > Bluetooth & devices</b> to verify if Windows was detecting the hardware, check power/USB selective suspend settings, or run the built-in <b>Hardware and Devices Troubleshooter</b>.<br><br>
+- <b>Step 3 (Take Remote & Check Windows Settings / Device Manager):</b><br>
+  If the issue still persists, I take remote control using <b>Microsoft Quick Assist</b> (by sharing a 6-digit security code with the user) and check the right tool based on the issue:<br><br>
 
-            - <b>Step 4 (Assign On-Site Technician):</b> If it still did not work after checking drivers and settings, I documented all troubleshooting steps in <b>ServiceNow</b> and assigned the ticket to an <b>on-site technician</b> to fix or replace the faulty part.
+  • <b>1. When to Open Windows Settings (<code>Win + I</code> > Bluetooth & devices):</b><br>
+    &nbsp;&nbsp;- <b>Bluetooth device not connecting:</b> Check if the Bluetooth toggle is turned <b>On</b>. If the device shows <i>"Paired"</i> or <i>"Not connected"</i>, click <b>Remove device</b> and re-pair it fresh using <b>Add device</b>.<br>
+    &nbsp;&nbsp;- <b>Printer stuck or not printing:</b> Go to <b>Printers & scanners</b>, click <b>Open print queue</b>, and select <b>Cancel all</b> to clear stuck print jobs.<br>
+    &nbsp;&nbsp;- <b>Laptop touchpad not working:</b> Go to <b>Touchpad</b> settings and make sure the touchpad toggle is turned <b>On</b>.<br>
+    &nbsp;&nbsp;- <b>USB mouse/dongle keeps disconnecting on its own:</b> Open <b>Edit power plan > Change advanced power settings > USB settings</b> and set <b>USB selective suspend</b> to <b>Disabled</b> so Windows stops cutting power to save battery.<br>
+    &nbsp;&nbsp;- <b>General hardware glitch:</b> Press <code>Win + R</code> and run <code>msdt.exe -id DeviceDiagnostic</code> to run the built-in Hardware Troubleshooter.<br><br>
+
+  • <b>2. When to Open Device Manager (<code>Win + X</code> or <code>devmgmt.msc</code>):</b><br>
+    &nbsp;&nbsp;- <b>Device was accidentally turned off (Down Arrow ↓):</b> Right-click the device and select <b>Enable device</b>.<br>
+    &nbsp;&nbsp;- <b>Driver is missing or corrupted (Yellow Triangle !):</b> Right-click and select <b>Update driver</b>—or <b>Uninstall device</b> and restart the PC so Windows automatically installs a fresh driver.<br>
+    &nbsp;&nbsp;- <b>Device stopped working right after a Windows Update:</b> Right-click the device, go to <b>Properties > Driver</b>, and click <b>Roll Back Driver</b> to revert to the previous working version.<br>
+    &nbsp;&nbsp;- <b>Newly plugged USB/keyboard not showing up at all:</b> Click on any device in the list and select <b>Action > Scan for hardware changes</b> (or the magnifying glass icon) to force Windows to detect it.<br><br>
+
+- <b>Step 4 (Assign On-Site Technician):</b> If everything looks clean in Windows Settings and Device Manager (no warning icons) and the device still does not work—confirming physical damage like a broken cable, dead port, or faulty part—I document all troubleshooting steps in <b>ServiceNow</b> and assign the ticket to an <b>on-site technician</b> to fix or replace the hardware.
         </div>
-        `
+    `
             },
-
             keyboard: {
                 title: "Keyboard Issues (Keys Not Working / Wrong Characters)",
                 content: `
@@ -1502,7 +1933,7 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
                 title: "L2 Hardware Diagnostics, BSOD & BIOS Settings",
                 content: `
         <div class="ps-2">
-            - <b>"No Bootable Device" & BIOS:</b> I used to guide the user over call to restart and press <b>F2 / F12 / Del</b> to open <b>BIOS</b>. Then I checked if the SSD/HDD was detected, fixed the <b>Boot Order</b>, and verified <b>UEFI / Legacy</b> settings.<br><br>
+            - <b>"No Bootable Device" & BIOS:</b> I used to guide the user over call to restart and press <b>F2 / F12 / Del</b> to open the <b>BIOS</b>. Then I checked if the SSD/HDD was detected, fixed the <b>Boot Order</b>, and verified <b>UEFI / Legacy</b> settings.<br><br>
             - <b>BSOD (Blue Screen):</b> I booted the system into <b>Safe Mode with Networking</b>, took remote control via <b>Microsoft Quick Assist</b>, noted the stop code, and ran <code>mdsched.exe</code> (RAM test), <code>sfc /scannow</code>, and <code>chkdsk /f /r</code>.<br><br>
             - <b>Diagnostics & Replacement:</b> I ran pre-boot hardware diagnostics (Dell ePSA / HP Diagnostics). If RAM, motherboard, or SSD was faulty, I arranged a laptop swap and coordinated with the <b>vendor / on-site team</b>.
         </div>
@@ -1531,35 +1962,13 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
         `
             },
 
-            l3_escalation: {
-                title: "L3 Support Escalation & Coordination",
-                content: `
-        <div class="ps-2">
-            - <b>When Needed:</b> For source code bugs, kernel-level OS failures, or major server outages.<br><br>
-            - <b>Action Taken:</b> I used to collect all L1/L2 troubleshooting steps, Event Viewer logs, error screenshots, and affected user counts, then assigned the ticket to <b>L3 Senior Architects, Server Teams, or External Vendors (Microsoft/Cisco)</b> and tracked it until resolved.
-        </div>
-        `
-            },
-            bsod_l2: {
-                title: "L2 Issue: Blue Screen of Death (BSOD) & System Crashes",
-                content: `
-        <div class="ps-2">
-- <b>Step 1 (Boot into Safe Mode):</b> When a user's laptop kept crashing with a Blue Screen error, I first guided them to restart and boot into <b>Safe Mode with Networking</b> so I could take remote control via <b>Microsoft Quick Assist</b>.<br><br>
-- <b>Step 2 (Check Stop Code & Run Repairs):</b> I noted the exact BSOD stop code (like <code>MEMORY_MANAGEMENT</code>), opened Admin CMD, and ran <code>sfc /scannow</code> and <code>chkdsk /f /r</code> to repair corrupted Windows system files.<br><br>
-- <b>Step 3 (Memory Test & Driver Rollback):</b> I ran <code>mdsched.exe</code> (Windows Memory Diagnostic) to test the RAM, and checked <b>Device Manager</b> to roll back any recently updated faulty drivers.<br><br>
-- <b>Step 4 (Escalate / Swap):</b> If the Blue Screen was caused by a failing RAM stick or SSD, I arranged a laptop swap and assigned the ticket to the <b>on-site / vendor team</b>.
-        </div>
-        `
-            },
-
             bios_l2: {
-                title: "L2 Issue: 'No Bootable Device' & BIOS Settings",
+                title: "L2 Hardware: 'No Bootable Device' & BIOS Boot Settings",
                 content: `
         <div class="ps-2">
-- <b>Step 1 (Enter BIOS Setup):</b> Since Windows wasn't booting, I guided the user over a phone/video call to restart the laptop and press <b>F2 / F12 / Del</b> to open the <b>BIOS Setup</b> screen.<br><br>
-- <b>Step 2 (Check Storage & Boot Order):</b> Under Storage Information, I asked them to check if the Hard Drive/SSD was visible. Then we went to the <b>Boot</b> tab and moved Windows Boot Manager / SSD to the top of the <b>Boot Order</b>.<br><br>
-- <b>Step 3 (UEFI / Legacy Mode):</b> If a BIOS reset had changed the boot mode, I guided them to switch between <b>UEFI and Legacy</b> (or enable Secure Boot), press <b>F10</b> to save and exit, and boot into Windows.<br><br>
-- <b>Step 4 (Next Action):</b> If the SSD was completely missing in BIOS, it meant a dead drive, so I arranged a replacement laptop via the <b>on-site team</b>.
+            - <b>Step 1 (Open BIOS Setup):</b> Since Windows was not booting, I guided the user over call to restart the laptop and press <b>F2 / F12 / Del</b> to open the <b>BIOS Setup</b> screen.<br><br>
+            - <b>Step 2 (Check Hard Drive & Boot Order):</b> Under Storage Information, I asked them to check if the Hard Drive/SSD was showing up. Then we went to the <b>Boot</b> tab and moved Windows Boot Manager / SSD to the top of the <b>Boot Order</b>.<br><br>
+            - <b>Step 3 (Save & Restart):</b> After verifying UEFI boot settings, I asked them to press <b>F10</b> to save and exit. If the SSD was completely missing in BIOS, it meant a dead drive, so I assigned an <b>on-site technician</b> for replacement.
         </div>
         `
             },
@@ -1594,49 +2003,6 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
 - <b>Analyzing Event Viewer Logs:</b> When an application or Windows kept crashing randomly, I took remote access via <b>Microsoft Quick Assist</b>, opened <b>Event Viewer (<code>eventvwr.msc</code>)</b>, and checked <b>Windows Logs > Application and System</b> to filter red critical error IDs and find the exact root cause.<br><br>
 - <b>OS Deployment / Re-imaging:</b> When Windows OS was severely corrupted beyond repair, I performed a fresh OS installation/re-imaging using <b>SCCM / PXE Boot</b> with the standard company image, installed drivers, and rejoined the PC to the domain.<br><br>
 - <b>Escalate to L3:</b> If a recent Windows patch was crashing multiple systems, I shared the Event Viewer logs with the <b>L3 Infrastructure / Patch Management Team</b>.
-        </div>
-        `
-            },
-
-            database_l2: {
-                title: "L2 Issue: Enterprise Application Timeout & Database Connectivity",
-                content: `
-        <div class="ps-2">
-- <b>Step 1 (Port & Server Check):</b> When an enterprise app threw a timeout error, I took remote access via <b>Microsoft Quick Assist</b> and ran PowerShell command <code>Test-NetConnection -ComputerName [DB_Server] -Port 1433</code> to check if the laptop could reach the database port.<br><br>
-- <b>Step 2 (ODBC & Local Config Check):</b> I opened <b>ODBC Data Source Administrator</b> to test the database connection and verified the server hostname in the application's local configuration file.<br><br>
-- <b>Step 3 (Escalate to L3 / DBA):</b> If the port was blocked by a firewall or the database server itself was down for multiple users, I collected the error logs and escalated the ticket to the <b>L3 DBA / Network Security Team</b>.
-        </div>
-        `
-            },
-
-            l3_escalation: {
-                title: "L3 Support Escalation & Coordination",
-                content: `
-        <div class="ps-2">
-- <b>When L3 Was Needed:</b> For extreme backend problems beyond L1/L2 scope—such as <b>software source code bugs, kernel-level OS failures, or major server outages</b>.<br><br>
-- <b>How I Handled It:</b> I used to gather all L1 and L2 troubleshooting steps, Event Viewer logs, exact error screenshots, and affected user counts, then assigned the ticket to <b>L3 Senior Architects, Server Teams, or External Vendors (Microsoft/Cisco)</b> and tracked it until resolved.
-        </div>
-        `
-            },
-            bsod_l2: {
-                title: "L2 Hardware: Blue Screen of Death (BSOD) & System Crashes",
-                content: `
-        <div class="ps-2">
-            - <b>Step 1 (Boot into Safe Mode):</b> When a user's laptop kept crashing with a Blue Screen error, I first guided them to restart and boot into <b>Safe Mode with Networking</b> so I could take remote control via <b>Microsoft Quick Assist</b>.<br><br>
-            - <b>Step 2 (Run Windows Repair Commands):</b> I noted the stop code, opened Admin CMD, and ran <code>sfc /scannow</code> and <code>chkdsk /f /r</code> to fix corrupted Windows system files.<br><br>
-            - <b>Step 3 (RAM & Driver Check):</b> I ran <code>mdsched.exe</code> (Windows Memory Diagnostic) to check RAM health and rolled back any faulty driver in <b>Device Manager</b>.<br><br>
-            - <b>Step 4 (Assign On-Site / Swap):</b> If the Blue Screen was due to faulty RAM or hard drive, I arranged a laptop swap and assigned the ticket to the <b>on-site technician</b>.
-        </div>
-        `
-            },
-
-            bios_l2: {
-                title: "L2 Hardware: 'No Bootable Device' & BIOS Boot Settings",
-                content: `
-        <div class="ps-2">
-            - <b>Step 1 (Open BIOS Setup):</b> Since Windows was not booting, I guided the user over call to restart the laptop and press <b>F2 / F12 / Del</b> to open the <b>BIOS Setup</b> screen.<br><br>
-            - <b>Step 2 (Check Hard Drive & Boot Order):</b> Under Storage Information, I asked them to check if the Hard Drive/SSD was showing up. Then we went to the <b>Boot</b> tab and moved Windows Boot Manager / SSD to the top of the <b>Boot Order</b>.<br><br>
-            - <b>Step 3 (Save & Restart):</b> After verifying UEFI boot settings, I asked them to press <b>F10</b> to save and exit. If the SSD was completely missing in BIOS, it meant a dead drive, so I assigned an <b>on-site technician</b> for replacement.
         </div>
         `
             },
@@ -1802,41 +2168,567 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
             },
         };
 
+        // ============================================================
+        // PERSISTENT AUDIO STORAGE (IndexedDB + Embedded JSON Store)
+        // ============================================================
+        const DB_NAME = "InterviewAudioDB";
+        const DB_STORE = "audios";
+        const DB_VERSION = 1;
+        let dbInstance = null;
 
+        // Stores active audio records in memory: { key: { name, type, url, blobOrDataUrl } }
+        const audioStoreMap = {};
+        let currentIssueKey = null;
 
-        // 2. showIssue function ko theek karein (issueTitleinnerHTML ki jagah issueTitle karein)
+        function openAudioDB() {
+            return new Promise((resolve, reject) => {
+                if (dbInstance) return resolve(dbInstance);
+                const req = indexedDB.open(DB_NAME, DB_VERSION);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(DB_STORE)) {
+                        db.createObjectStore(DB_STORE, { keyPath: "key" });
+                    }
+                };
+                req.onsuccess = (e) => {
+                    dbInstance = e.target.result;
+                    resolve(dbInstance);
+                };
+                req.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function saveAudioToDB(key, record) {
+            const db = await openAudioDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(DB_STORE, "readwrite");
+                tx.objectStore(DB_STORE).put({ key, ...record });
+                tx.oncomplete = () => resolve();
+                tx.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function getAllAudioFromDB() {
+            const db = await openAudioDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(DB_STORE, "readonly");
+                const req = tx.objectStore(DB_STORE).getAll();
+                req.onsuccess = () => resolve(req.result || []);
+                req.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        function loadEmbeddedAudioData() {
+            try {
+                const el = document.getElementById("embeddedAudioScript");
+                if (!el || !el.textContent.trim()) return {};
+                return JSON.parse(el.textContent);
+            } catch (err) {
+                console.warn("Could not parse embedded audio data:", err);
+                return {};
+            }
+        }
+
+        async function initPersistentAudioStore() {
+            // 1. Load embedded audio from HTML file itself
+            const embedded = loadEmbeddedAudioData();
+            Object.keys(embedded).forEach((key) => {
+                const item = embedded[key];
+                if (item && item.dataUrl) {
+                    audioStoreMap[key] = {
+                        name: item.name || "audio.mp3",
+                        type: item.type || "audio/mpeg",
+                        url: item.dataUrl,
+                        dataUrl: item.dataUrl
+                    };
+                }
+            });
+
+            // 2. Overlay with IndexedDB (persists uploads/deletes across sessions)
+            try {
+                const dbItems = await getAllAudioFromDB();
+                dbItems.forEach((item) => {
+                    if (item.deleted) {
+                        delete audioStoreMap[item.key];
+                    } else if (item.blob) {
+                        const objectUrl = URL.createObjectURL(item.blob);
+                        audioStoreMap[item.key] = {
+                            name: item.name || "uploaded.mp3",
+                            type: item.type || item.blob.type || "audio/mpeg",
+                            url: objectUrl,
+                            blob: item.blob
+                        };
+                    }
+                });
+            } catch (err) {
+                console.warn("IndexedDB load warning:", err);
+            }
+
+            refreshAllAudioUI();
+        }
+
+        function buildAudioBarHTML(audioKey, labelText) {
+            const saved = audioStoreMap[audioKey];
+            const hasFile = !!saved;
+            const safeName = saved ? escapeHtml(saved.name) : "";
+            const audioSrc = saved ? saved.url : "";
+
+            return `
+                <div class="audio-bar" data-audio-key="${audioKey}">
+                    <button type="button" class="btn btn-sm btn-primary fw-semibold tts-read-btn"
+                        data-tts-key="${audioKey}" onclick="toggleTTS('${audioKey}')">
+                        🔊 ${labelText}
+                    </button>
+                    <label class="btn btn-sm btn-outline-success fw-semibold mb-0" title="Select MP3/Audio file">
+                        📁 ${hasFile ? "Replace MP3" : "Upload MP3"}
+                        <input type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg" class="d-none"
+                            onchange="handleAudioUpload('${audioKey}', this)">
+                    </label>
+                    ${hasFile ? `
+                        <audio controls preload="metadata" src="${audioSrc}" onplay="stopOtherAudio(this)"></audio>
+                        <span class="mp3-file-name" title="${safeName}">🎵 ${safeName}</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                            onclick="deleteAudio('${audioKey}')" title="Delete uploaded MP3">🗑️</button>
+                    ` : `
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis ms-auto">No MP3 uploaded</span>
+                    `}
+                </div>
+            `;
+        }
+
+        function escapeHtml(str) {
+            return String(str || "").replace(/[&<>"']/g, (m) => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[m]));
+        }
+
+        async function handleAudioUpload(audioKey, inputEl) {
+            const file = inputEl.files && inputEl.files[0];
+            if (!file) return;
+
+            try {
+                // Revoke previous blob URL if any
+                if (audioStoreMap[audioKey] && audioStoreMap[audioKey].blob && audioStoreMap[audioKey].url.startsWith("blob:")) {
+                    URL.revokeObjectURL(audioStoreMap[audioKey].url);
+                }
+
+                const blob = file.slice(0, file.size, file.type || "audio/mpeg");
+                await saveAudioToDB(audioKey, {
+                    name: file.name,
+                    type: file.type || "audio/mpeg",
+                    blob: blob,
+                    deleted: false
+                });
+
+                const objectUrl = URL.createObjectURL(blob);
+                audioStoreMap[audioKey] = {
+                    name: file.name,
+                    type: file.type || "audio/mpeg",
+                    url: objectUrl,
+                    blob: blob
+                };
+
+                refreshAudioUIForKey(audioKey);
+                updateGlobalMp3Count();
+            } catch (err) {
+                alert("Failed to save audio file: " + err.message);
+            } finally {
+                inputEl.value = "";
+            }
+        }
+
+        async function deleteAudio(audioKey) {
+            if (!confirm("Remove this uploaded MP3 permanently?")) return;
+
+            try {
+                if (audioStoreMap[audioKey] && audioStoreMap[audioKey].url.startsWith("blob:")) {
+                    URL.revokeObjectURL(audioStoreMap[audioKey].url);
+                }
+                delete audioStoreMap[audioKey];
+
+                // Mark deleted in IndexedDB so embedded audio (if any) stays deleted on reload
+                await saveAudioToDB(audioKey, { deleted: true });
+
+                refreshAudioUIForKey(audioKey);
+                updateGlobalMp3Count();
+            } catch (err) {
+                alert("Error removing audio: " + err.message);
+            }
+        }
+
+        function refreshAudioUIForKey(audioKey) {
+            if (audioKey.startsWith("q_")) {
+                const idx = audioKey.replace("q_", "");
+                const container = document.getElementById(`q-audio-bar-${idx}`);
+                if (container) {
+                    container.innerHTML = buildAudioBarHTML(audioKey, "Read Q&A");
+                }
+                const headerBadge = document.getElementById(`q-mp3-badge-${idx}`);
+                if (headerBadge) {
+                    headerBadge.classList.toggle("d-none", !audioStoreMap[audioKey]);
+                }
+            } else if (audioKey.startsWith("issue_")) {
+                const issueKey = audioKey.replace("issue_", "");
+                if (currentIssueKey === issueKey) {
+                    const bar = document.getElementById("issueAudioBar");
+                    if (bar) bar.innerHTML = buildAudioBarHTML(audioKey, "Read Issue");
+                }
+                updateIssueLinkIndicators();
+            }
+        }
+
+        function refreshAllAudioUI() {
+            normalQuestions.forEach((_, index) => {
+                const key = `q_${index}`;
+                const container = document.getElementById(`q-audio-bar-${index}`);
+                if (container) {
+                    container.innerHTML = buildAudioBarHTML(key, "Read Q&A");
+                }
+                const headerBadge = document.getElementById(`q-mp3-badge-${index}`);
+                if (headerBadge) {
+                    headerBadge.classList.toggle("d-none", !audioStoreMap[key]);
+                }
+            });
+
+            if (currentIssueKey) {
+                const bar = document.getElementById("issueAudioBar");
+                if (bar) bar.innerHTML = buildAudioBarHTML(`issue_${currentIssueKey}`, "Read Issue");
+            }
+
+            updateIssueLinkIndicators();
+            updateGlobalMp3Count();
+        }
+
+        function updateIssueLinkIndicators() {
+            document.querySelectorAll(".issue-link").forEach((linkEl) => {
+                let key = linkEl.getAttribute("data-issue-key");
+                if (!key) {
+                    const onclickAttr = linkEl.getAttribute("onclick") || "";
+                    const m = onclickAttr.match(/showIssue\(['"]([^'"]+)['"]\)/);
+                    if (m) key = m[1];
+                }
+                if (key) {
+                    linkEl.classList.toggle("has-mp3", !!audioStoreMap[`issue_${key}`]);
+                }
+            });
+        }
+
+        function updateGlobalMp3Count() {
+            const count = Object.keys(audioStoreMap).length;
+            const el = document.getElementById("savedMp3Counter");
+            if (el) {
+                el.textContent = `🎵 ${count} MP3${count === 1 ? "" : "s"} Saved`;
+            }
+        }
+
+        function stopOtherAudio(activeAudioEl) {
+            stopTTS();
+            document.querySelectorAll("audio").forEach((aud) => {
+                if (aud !== activeAudioEl && !aud.paused) {
+                    aud.pause();
+                }
+            });
+        }
+
+        // Convert Blob to DataURL for Permanent HTML Export
+        function blobToDataUrl(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        async function exportPermanentHTML() {
+            const btn = document.getElementById("savePermanentHtmlBtn");
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = "⏳ Packing MP3s into HTML...";
+
+            try {
+                const exportMap = {};
+                const keys = Object.keys(audioStoreMap);
+                for (const key of keys) {
+                    const item = audioStoreMap[key];
+                    let dataUrl = item.dataUrl;
+                    if (!dataUrl && item.blob) {
+                        dataUrl = await blobToDataUrl(item.blob);
+                    }
+                    if (dataUrl) {
+                        exportMap[key] = {
+                            name: item.name,
+                            type: item.type,
+                            dataUrl: dataUrl
+                        };
+                    }
+                }
+
+                // Clone current document cleanly without runtime mutations
+                const clone = document.documentElement.cloneNode(true);
+                const cloneAcc = clone.querySelector("#interviewAccordion");
+                if (cloneAcc) cloneAcc.innerHTML = "\n<!-- Questions Injected Dynamically -->\n";
+
+                const cloneIssueBar = clone.querySelector("#issueAudioBar");
+                if (cloneIssueBar) cloneIssueBar.innerHTML = "";
+
+                const cloneIssueContent = clone.querySelector("#issueContent");
+                if (cloneIssueContent) cloneIssueContent.innerHTML = "";
+
+                const cloneSearch = clone.querySelector("#accordionSearch");
+                if (cloneSearch) cloneSearch.removeAttribute("value");
+
+                clone.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+                clone.querySelectorAll(".modal.show").forEach(m => {
+                    m.classList.remove("show");
+                    m.removeAttribute("style");
+                    m.setAttribute("aria-hidden", "true");
+                });
+
+                const cloneBody = clone.querySelector("body");
+                if (cloneBody) {
+                    cloneBody.classList.remove("modal-open");
+                    cloneBody.removeAttribute("style");
+                }
+
+                const cloneBtn = clone.querySelector("#savePermanentHtmlBtn");
+                if (cloneBtn) {
+                    cloneBtn.disabled = false;
+                    cloneBtn.innerHTML = "💾 Save Permanent HTML (with MP3s)";
+                }
+
+                const embeddedEl = clone.querySelector("#embeddedAudioScript");
+                if (embeddedEl) {
+                    const safeJson = JSON.stringify(exportMap).replace(/<\/script>/gi, "<\\/script>");
+                    embeddedEl.textContent = safeJson;
+                }
+
+                const finalHtml = "<!DOCTYPE html>\n" + clone.outerHTML;
+                const fileBlob = new Blob([finalHtml], { type: "text/html;charset=utf-8" });
+
+                // Use File System Access API if available (lets you overwrite tech2.html directly!)
+                if (window.showSaveFilePicker) {
+                    try {
+                        const handle = await window.showSaveFilePicker({
+                            suggestedName: "tech2.html",
+                            types: [{
+                                description: "HTML Document",
+                                accept: { "text/html": [".html", ".htm"] }
+                            }]
+                        });
+                        const writable = await handle.createWritable();
+                        await writable.write(fileBlob);
+                        await writable.close();
+                        alert(`✅ Saved permanently with ${keys.length} MP3 file(s) embedded!`);
+                        return;
+                    } catch (pickerErr) {
+                        if (pickerErr.name === "AbortError") return;
+                        // Fall through to standard download
+                    }
+                }
+
+                const dlUrl = URL.createObjectURL(fileBlob);
+                const a = document.createElement("a");
+                a.href = dlUrl;
+                a.download = "tech2.html";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(dlUrl), 3000);
+            } catch (err) {
+                alert("Error exporting HTML: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // ============================================================
+        // TEXT-TO-SPEECH (Read Question + Answer & Issue Details)
+        // ============================================================
+        let activeTtsKey = null;
+        let ttsSessionId = 0;
+
+        function htmlToReadableText(html) {
+            const tmp = document.createElement("div");
+            tmp.innerHTML = html.replace(/<br\s*\/?>/gi, ". ").replace(/<\/(p|div|li)>/gi, ". ");
+            return (tmp.textContent || tmp.innerText || "").replace(/\s+/g, " ").trim();
+        }
+
+        function splitTextIntoChunks(text, maxLen = 180) {
+            const rawParts = text.split(/(?<=[।.?!])\s+/);
+            const chunks = [];
+            let current = "";
+
+            for (const part of rawParts) {
+                if (!part.trim()) continue;
+                if ((current + " " + part).trim().length <= maxLen) {
+                    current = (current + " " + part).trim();
+                } else {
+                    if (current) chunks.push(current);
+                    if (part.length <= maxLen) {
+                        current = part.trim();
+                    } else {
+                        // Split long chunk by words
+                        const words = part.trim().split(/\s+/);
+                        let sub = "";
+                        for (const w of words) {
+                            if ((sub + " " + w).trim().length <= maxLen) {
+                                sub = (sub + " " + w).trim();
+                            } else {
+                                if (sub) chunks.push(sub);
+                                sub = w;
+                            }
+                        }
+                        current = sub;
+                    }
+                }
+            }
+            if (current) chunks.push(current);
+            return chunks;
+        }
+
+        function stopTTS() {
+            ttsSessionId++;
+            if ("speechSynthesis" in window) {
+                window.speechSynthesis.cancel();
+            }
+            activeTtsKey = null;
+            updateTtsButtonsUI();
+        }
+
+        function updateTtsButtonsUI() {
+            const stopGlobalBtn = document.getElementById("stopGlobalTtsBtn");
+            if (stopGlobalBtn) {
+                stopGlobalBtn.classList.toggle("d-none", !activeTtsKey);
+            }
+
+            document.querySelectorAll(".tts-read-btn").forEach((btn) => {
+                const key = btn.getAttribute("data-tts-key");
+                const defaultLabel = key.startsWith("issue_") ? "🔊 Read Issue" : "🔊 Read Q&A";
+                if (key === activeTtsKey) {
+                    btn.classList.remove("btn-primary");
+                    btn.classList.add("btn-danger");
+                    btn.innerHTML = "⏹ Stop Reading";
+                } else {
+                    btn.classList.remove("btn-danger");
+                    btn.classList.add("btn-primary");
+                    btn.innerHTML = defaultLabel;
+                }
+            });
+        }
+
+        function toggleTTS(key) {
+            if (!("speechSynthesis" in window)) {
+                alert("Sorry, Text-to-Speech is not supported in this browser.");
+                return;
+            }
+
+            if (activeTtsKey === key) {
+                stopTTS();
+                return;
+            }
+
+            // Pause any playing <audio> tags
+            document.querySelectorAll("audio").forEach((aud) => {
+                if (!aud.paused) aud.pause();
+            });
+
+            let fullText = "";
+            if (key.startsWith("q_")) {
+                const idx = parseInt(key.replace("q_", ""), 10);
+                const item = normalQuestions[idx];
+                if (!item) return;
+                fullText = htmlToReadableText(item.question) + ". " + htmlToReadableText(item.answer);
+            } else if (key.startsWith("issue_")) {
+                const issueKey = key.replace("issue_", "");
+                const issue = issueSolutions[issueKey];
+                if (!issue) return;
+                fullText = htmlToReadableText(issue.title) + ". " + htmlToReadableText(issue.content);
+            }
+
+            if (!fullText) return;
+
+            stopTTS();
+            activeTtsKey = key;
+            const mySession = ttsSessionId;
+            updateTtsButtonsUI();
+
+            const chunks = splitTextIntoChunks(fullText);
+            let i = 0;
+
+            function speakNext() {
+                if (mySession !== ttsSessionId) return;
+                if (i >= chunks.length) {
+                    activeTtsKey = null;
+                    updateTtsButtonsUI();
+                    return;
+                }
+
+                const chunk = chunks[i++];
+                const utter = new SpeechSynthesisUtterance(chunk);
+                const hasHindi = /[\u0900-\u097F]/.test(chunk);
+                utter.lang = hasHindi ? "hi-IN" : "en-US";
+                utter.rate = 0.98;
+
+                utter.onend = () => speakNext();
+                utter.onerror = () => {
+                    if (mySession === ttsSessionId) {
+                        activeTtsKey = null;
+                        updateTtsButtonsUI();
+                    }
+                };
+                window.speechSynthesis.speak(utter);
+            }
+
+            speakNext();
+        }
+
+        // ============================================================
+        // ISSUE MODAL HANDLER
+        // ============================================================
         function showIssue(issueKey) {
             if (!issueSolutions[issueKey]) return;
+            currentIssueKey = issueKey;
 
-            // Yahan ID fix ki gayi hai:
             document.getElementById("issueTitle").innerHTML = issueSolutions[issueKey].title;
+            document.getElementById("issueAudioBar").innerHTML = buildAudioBarHTML(`issue_${issueKey}`, "Read Issue");
             document.getElementById("issueContent").innerHTML = issueSolutions[issueKey].content;
 
-            const modal = new bootstrap.Modal(document.getElementById("issueModal"));
+            const modalEl = document.getElementById("issueModal");
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
             modal.show();
         }
 
-
+        // ============================================================
+        // ACCORDION, TELEPROMPTER, SEARCH & SPEECH RECOGNITION
+        // ============================================================
         let isStressMode = false;
         let recognition = null;
         let isListening = false;
         const accordion = document.getElementById("interviewAccordion");
 
-        document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", async () => {
             renderAccordion();
             setupKeyboardNavigation();
             initSpeechRecognition();
+            await initPersistentAudioStore();
+
+            const issueModalEl = document.getElementById("issueModal");
+            if (issueModalEl) {
+                issueModalEl.addEventListener("hidden.bs.modal", () => {
+                    if (activeTtsKey && activeTtsKey.startsWith("issue_")) {
+                        stopTTS();
+                    }
+                    const modalAudio = issueModalEl.querySelector("audio");
+                    if (modalAudio && !modalAudio.paused) modalAudio.pause();
+                    currentIssueKey = null;
+                });
+            }
         });
 
-        // उत्तर को टेलीप्रॉम्प्टर के लिए लाइनों में बांटने का लॉजिक (HTML टैग्स सुरक्षित रखते हुए)
         function formatAnswerToLines(answerText) {
             if (!answerText) return "";
-
-            // चूँकि इसमें HTML टैग्स (<br>, <span> आदि) हैं, हम पैराग्राफ्स या ब्लॉक्स में विभाजित करेंगे
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = answerText;
-
-            // textContent या childNodes के आधार पर सेपरेट करना बेहतर है
             const rawHtmls = answerText.split(/<br\s*[\/]?>|<\/p>/gi);
             let formattedHtml = "";
 
@@ -1851,11 +2743,13 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
         }
 
         function renderAccordion() {
-            const dataSet = isStressMode ? stressQuestions : normalQuestions;
+            const dataSet = normalQuestions;
             accordion.innerHTML = "";
 
             dataSet.forEach((item, index) => {
                 const formattedAnswer = formatAnswerToLines(item.answer);
+                const audioKey = `q_${index}`;
+                const hasSavedMp3 = !!audioStoreMap[audioKey];
 
                 accordion.insertAdjacentHTML("beforeend", `
                     <div class="accordion-item" id="item-${index}">
@@ -1863,23 +2757,33 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                                 data-bs-target="#a${index + 1}" aria-expanded="false" aria-controls="a${index + 1}">
                                 <span class="q-title" data-original="${encodeURIComponent(item.question)}">${item.question}</span>
+                                <span id="q-mp3-badge-${index}" class="badge bg-success ms-2 ${hasSavedMp3 ? "" : "d-none"}">🎵 MP3</span>
                             </button>
                         </h2>
                         <div id="a${index + 1}" class="accordion-collapse collapse" aria-labelledby="q${index + 1}"
                             data-bs-parent="#interviewAccordion">
-                            <div class="accordion-body">${formattedAnswer}</div>
+                            <div class="accordion-body">
+                                <div id="q-audio-bar-${index}">
+                                    ${buildAudioBarHTML(audioKey, "Read Q&A")}
+                                </div>
+                                <div class="ans-lines-wrap">
+                                    ${formattedAnswer}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `);
             });
 
             attachAnswerClickEvents();
+            updateIssueLinkIndicators();
             liveSearchAccordion();
         }
 
         function attachAnswerClickEvents() {
             document.querySelectorAll('.accordion-body').forEach(body => {
                 body.addEventListener('click', (e) => {
+                    if (e.target.closest('.audio-bar')) return;
                     const line = e.target.closest('.ans-line');
                     if (line) {
                         body.querySelectorAll('.ans-line').forEach(l => l.classList.remove('active-line'));
@@ -1918,12 +2822,6 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
             const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
             window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-        }
-
-        function toggleMode() {
-            const modeToggle = document.getElementById("modeToggle");
-            isStressMode = modeToggle.checked;
-            renderAccordion();
         }
 
         function highlightTextInNode(node, query) {
@@ -2036,6 +2934,11 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
 
         function setupKeyboardNavigation() {
             document.addEventListener('keydown', (e) => {
+                // Skip global navigation shortcuts when a modal is open or user is controlling an audio player
+                if (document.querySelector('.modal.show')) return;
+                const activeTag = document.activeElement ? document.activeElement.tagName : '';
+                if (activeTag === 'AUDIO' || activeTag === 'INPUT' && document.activeElement.type === 'file') return;
+
                 const searchInput = document.getElementById("accordionSearch");
 
                 if (e.ctrlKey) {
@@ -2088,12 +2991,13 @@ Just like Jio and Airtel are famous internet companies (ISPs) in India, Comcast 
                         if (searchInput) searchInput.blur();
                         return;
                     }
+                    if (activeTag === 'BUTTON' || activeTag === 'LABEL') return;
                     e.preventDefault();
                     toggleSpeechRecognition();
                     return;
                 }
 
-                if (e.code === 'Space' && document.activeElement !== searchInput) {
+                if (e.code === 'Space' && document.activeElement !== searchInput && activeTag !== 'BUTTON' && activeTag !== 'LABEL') {
                     e.preventDefault();
                     if (isListening) stopListening();
 
